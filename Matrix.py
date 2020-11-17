@@ -51,8 +51,7 @@ class Matrix:
         self.add_players(positions)
         self.add_random_unbreakables()
         bt = BackTracking(self.unbreakables)
-        print(bt.is_safe())
-
+        self.add_random_breakables()
 
     def add_unbreakables(self):
         """
@@ -77,7 +76,7 @@ class Matrix:
 
     def add_random_unbreakables(self):
         """
-        Method that adds 10% of randomly distributed unbreakable blocks of the total of spaces in the matrix (ROWS x COLUMNS)
+        Method that changes 5% of the total of nodes in the matrix (ROWS x COLUMNS) to randomly distributed unbreakable blocks
         :return:
         """
         random_blocks = 0.05*ROWS*COLUMNS
@@ -97,32 +96,67 @@ class Matrix:
                     blank_space = Blank((i, j))
                     self.matrix[i][j] = blank_space
 
+    def add_random_breakables(self):
+        """
+        Method that changes 15% of the total of nodes in the matrix (ROWS x COLUMNS) to randomly distributed unbreakable blocks
+        :return:
+        """
+        random_blocks = 0.15 * ROWS * COLUMNS
+        blocks_counter = 0
+        while blocks_counter < random_blocks:
+            i = random.randint(0, ROWS - 1)
+            j = random.randint(0, COLUMNS - 1)
+            if isinstance(self.matrix[i][j], Blank):
+                breakable = Breakable((i, j))
+                self.matrix[i][j] = breakable
+                blocks_counter += 1
+                self.unbreakables += 1
+
+
     def add_players(self, positions):
         """Adds players to the matrix"""
         players = []
 
-        self.enemy0 = Enemy(positions[0])
+        def set_indexes():
+            rand_indexes = []
+            while len(rand_indexes) < 8:
+                ind = random.randint(0, 7)
+                if ind not in rand_indexes:
+                    rand_indexes.append(ind)
+            return rand_indexes
+
+        indexes = set_indexes()
+
+        index = indexes[0]
+        self.enemy0 = Enemy(positions[index])
         players.append(self.enemy0)
 
-        self.enemy1 = Enemy(positions[1])
+        index = indexes[1]
+        self.enemy1 = Enemy(positions[index])
         players.append(self.enemy1)
 
-        self.enemy2 = Enemy(positions[2])
+        index = indexes[2]
+        self.enemy2 = Enemy(positions[index])
         players.append(self.enemy2)
 
-        self.enemy3 = Enemy(positions[3])
+        index = indexes[3]
+        self.enemy3 = Enemy(positions[index])
         players.append(self.enemy3)
 
-        self.enemy4 = Enemy(positions[4])
+        index = indexes[4]
+        self.enemy4 = Enemy(positions[index])
         players.append(self.enemy4)
 
-        self.enemy5 = Enemy(positions[5])
+        index = indexes[5]
+        self.enemy5 = Enemy(positions[index])
         players.append(self.enemy5)
 
-        self.enemy6 = Enemy(positions[6])
+        index = indexes[6]
+        self.enemy6 = Enemy(positions[index])
         players.append(self.enemy6)
 
-        self.user = User(positions[7])
+        index = indexes[7]
+        self.user = User(positions[index])
         players.append(self.user)
 
         for k in range(0, len(players)):  # assign players to the matrix
@@ -180,6 +214,14 @@ class BackTracking:
         return self.is_safe_aux(0, 0)
 
     def is_safe_aux(self, i, j):
+        """
+        Recursive method that attempts to visit all nodes in matrix to check if the generated routes are correct.
+        Returns false if there are unreachable nodes.
+        :param i: int
+        :param j: int
+        :return: boolean
+        """
+
         position = (i, j)
         if len(self.visited) == ROWS*COLUMNS-self.unbreakables:
             return True
