@@ -10,6 +10,12 @@ class Player:
     def __init__(self, position):
         self.position = position
 
+    def get_x(self):
+        return self.position[0]
+
+    def get_y(self):
+        return self.position[1]
+
 
 class User(Player):
 

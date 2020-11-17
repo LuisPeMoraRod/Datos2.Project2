@@ -3,9 +3,8 @@ import sys
 from pygame.locals import *
 from Matrix import *
 
-
-matrix = Matrix()
-print(matrix)
+matrix0 = Matrix.get_instance()
+print(matrix0)
 """
 pygame.init()
 SCREEN = pygame.display.set_mode((500,480))
