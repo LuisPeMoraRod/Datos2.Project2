@@ -1,21 +1,20 @@
-import pygame
 import sys
 from pygame.locals import *
 from Matrix import *
 
-#Constants
+# Constants
 FPS = 3
 
 matrix0 = Matrix.get_instance()
 print(matrix0)
 
-#Load pygame window and clock
+# Load pygame window and clock
 pygame.init()
-SCREEN = pygame.display.set_mode((500,480))
+SCREEN = pygame.display.set_mode((500, 480))
 pygame.display.set_caption('BomberTEC')
 clock = pygame.time.Clock()
 
-#Sprites group
+# Sprites group
 players = pygame.sprite.Group()
 players.add(matrix0.user)
 players.add(matrix0.enemy0)
@@ -32,7 +31,7 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-    #Sprites update
+    # Sprites update
     players.update()
     print('\n')
     print(matrix0)

@@ -1,5 +1,7 @@
 import Matrix
 import pygame
+import Bomb
+
 
 class Player (pygame.sprite.Sprite):
     """
@@ -19,6 +21,7 @@ class Player (pygame.sprite.Sprite):
         super().__init__()
         self.matrix = matrix.matrix
         self.position = position
+        self.new_bomb = False
 
     def get_x(self):
         return self.position[0]
@@ -32,14 +35,15 @@ class Player (pygame.sprite.Sprite):
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
-        if pos_j < Matrix.COLUMNS-1:
-            if isinstance(self.matrix[pos_i][pos_j+1], Matrix.Blank):
-                self.matrix[pos_i][pos_j+1] = self
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-                self.position[1] += 1
-                print("moving right")
+        if not pos_j < Matrix.COLUMNS - 1:
+            return ""
+        if isinstance(self.matrix[pos_i][pos_j + 1], Matrix.Blank):
+            self.matrix[pos_i][pos_j + 1] = self
+            if self.new_bomb:
+                self.leave_bomb()
             else:
-                print("Impossible to move right")
+                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[1] += 1
 
     def move_left(self):
         """
@@ -47,14 +51,15 @@ class Player (pygame.sprite.Sprite):
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
-        if pos_j > 0:
-            if isinstance(self.matrix[pos_i][pos_j-1], Matrix.Blank):
-                self.matrix[pos_i][pos_j - 1] = self
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-                self.position[1] -= 1
-                print("moving left")
+        if not pos_j > 0:
+            return ""
+        if isinstance(self.matrix[pos_i][pos_j - 1], Matrix.Blank):
+            self.matrix[pos_i][pos_j - 1] = self
+            if self.new_bomb:
+                self.leave_bomb()
             else:
-                print("Impossible to move left")
+                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[1] -= 1
 
     def move_up(self):
         """
@@ -62,14 +67,15 @@ class Player (pygame.sprite.Sprite):
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
-        if pos_i > 0:
-            if isinstance(self.matrix[pos_i-1][pos_j], Matrix.Blank):
-                self.matrix[pos_i-1][pos_j] = self
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-                self.position[0] -= 1
-                print("moving up")
+        if not pos_i > 0:
+            return ""
+        if isinstance(self.matrix[pos_i - 1][pos_j], Matrix.Blank):
+            self.matrix[pos_i - 1][pos_j] = self
+            if self.new_bomb:
+                self.leave_bomb()
             else:
-                print("Impossible to move up")
+                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[0] -= 1
 
     def move_down(self):
         """
@@ -77,15 +83,24 @@ class Player (pygame.sprite.Sprite):
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
-        if pos_i < Matrix.ROWS-1:
-            if isinstance(self.matrix[pos_i+1][pos_j], Matrix.Blank):
-                self.matrix[pos_i+1][pos_j] = self
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-                self.position[0] += 1
-                print("moving down")
+        if not pos_i < Matrix.ROWS - 1:
+            return ""
+        if isinstance(self.matrix[pos_i + 1][pos_j], Matrix.Blank):
+            self.matrix[pos_i + 1][pos_j] = self
+            if self.new_bomb:
+                self.leave_bomb()
             else:
-                print("Impossible to move down")
+                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[0] += 1
 
+    def leave_bomb(self):
+        """
+        Method that allows the player to leave a bomb where he is
+        """
+        pos_i = self.position[0]
+        pos_j = self.position[1]
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix)
+        self.new_bomb = False
 
 
 class User(Player):
@@ -113,6 +128,8 @@ class User(Player):
             self.move_up()
         if keys[pygame.K_s]:
             self.move_down()
+        if keys[pygame.K_o]:
+            self.new_bomb = True
 
 
 class Enemy(Player):
