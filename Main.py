@@ -3,7 +3,7 @@ from pygame.locals import *
 from Matrix import *
 
 # Constants
-FPS = 3
+FPS = 2
 
 matrix0 = Matrix.get_instance()
 print(matrix0)

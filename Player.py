@@ -1,16 +1,16 @@
 import Matrix
 import pygame
 import Bomb
+import random
+
+# Constants
+TIME_BETWEEN_MOVEMENTS = 500
 
 
 class Player (pygame.sprite.Sprite):
     """
     Class for player objects.
     """
-    lives = 8
-    velocity = 5
-    explosion_radius = 3
-    evasion = 7
 
     def __init__(self, position, matrix):
         """
@@ -19,9 +19,17 @@ class Player (pygame.sprite.Sprite):
         :param matrix: Matrix
         """
         super().__init__()
+        # Position attributes
         self.matrix = matrix.matrix
         self.position = position
+        # Bomb control attribute
         self.new_bomb = False
+        # Movement attributes
+        self.last_movement_time = pygame.time.get_ticks()
+        # Power ups attributes
+        self.has_cross_bomb = False
+        self.has_shoe = False
+        self.has_shield = False
 
     def get_x(self):
         return self.position[0]
@@ -97,8 +105,8 @@ class Player (pygame.sprite.Sprite):
         """
         Method that allows the player to leave a bomb where he is
         """
-        pos_i = self.position[0]
-        pos_j = self.position[1]
+        pos_i = self.get_x()
+        pos_j = self.get_y()
         self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix)
         self.new_bomb = False
 
@@ -107,6 +115,10 @@ class User(Player):
 
     def __init__(self, position, matrix):
         super().__init__(position, matrix)
+        # User stats
+        self.lives = 3
+        self.velocity = TIME_BETWEEN_MOVEMENTS
+        self.explosion_radius = 2
 
     def __str__(self):
         """
@@ -120,6 +132,13 @@ class User(Player):
         Method that reads the user movements from the keyboard
         """
         keys = pygame.key.get_pressed()
+        # Leave bomb control
+        if keys[pygame.K_o]:
+            self.new_bomb = True
+        # Movement control
+        actual_time = pygame.time.get_ticks()
+        if actual_time - self.last_movement_time < self.velocity:
+            return
         if keys[pygame.K_d]:
             self.move_right()
         if keys[pygame.K_a]:
@@ -128,13 +147,27 @@ class User(Player):
             self.move_up()
         if keys[pygame.K_s]:
             self.move_down()
-        if keys[pygame.K_o]:
-            self.new_bomb = True
+        self.last_movement_time = actual_time
 
 
 class Enemy(Player):
+
     def __init__(self, position, matrix):
         super().__init__(position, matrix)
+
+        def define_stats():
+            lives = random.randrange(3, 6)
+            velocity = random.randrange(5, 7)
+            explosion_radius = random.randrange(1, 4)
+            evasion = 14 - lives - velocity - explosion_radius
+            stats = [lives, velocity, explosion_radius, evasion]
+            return stats
+
+        enemy_stats = define_stats()
+        self.lives = enemy_stats[0]
+        self.velocity = enemy_stats[1]*100
+        self.explosion_radius = enemy_stats[2]
+        self.evasion = enemy_stats[3]
 
     def __str__(self):
         """
