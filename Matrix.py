@@ -128,35 +128,35 @@ class Matrix:
         indexes = set_indexes()
 
         index = indexes[0]
-        self.enemy0 = Enemy(positions[index])
+        self.enemy0 = Enemy(positions[index], self)
         players.append(self.enemy0)
 
         index = indexes[1]
-        self.enemy1 = Enemy(positions[index])
+        self.enemy1 = Enemy(positions[index], self)
         players.append(self.enemy1)
 
         index = indexes[2]
-        self.enemy2 = Enemy(positions[index])
+        self.enemy2 = Enemy(positions[index], self)
         players.append(self.enemy2)
 
         index = indexes[3]
-        self.enemy3 = Enemy(positions[index])
+        self.enemy3 = Enemy(positions[index], self)
         players.append(self.enemy3)
 
         index = indexes[4]
-        self.enemy4 = Enemy(positions[index])
+        self.enemy4 = Enemy(positions[index], self)
         players.append(self.enemy4)
 
         index = indexes[5]
-        self.enemy5 = Enemy(positions[index])
+        self.enemy5 = Enemy(positions[index], self)
         players.append(self.enemy5)
 
         index = indexes[6]
-        self.enemy6 = Enemy(positions[index])
+        self.enemy6 = Enemy(positions[index], self)
         players.append(self.enemy6)
 
         index = indexes[7]
-        self.user = User(positions[index])
+        self.user = User(positions[index], self)
         players.append(self.user)
 
         for k in range(0, len(players)):  # assign players to the matrix
