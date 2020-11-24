@@ -1,10 +1,10 @@
 from Block import *
 from Player import *
 import random
-ROWS = 20
-COLUMNS = 20
-WHITE = (255, 255, 255)
 
+WHITE = (255, 255, 255)
+ROWS = 18
+COLUMNS = 12
 
 class Matrix:
     """
@@ -18,7 +18,7 @@ class Matrix:
     def get_instance():
         """Static access method"""
         if Matrix.__instance is None:
-            Matrix()
+            return Matrix()
         return Matrix.__instance
 
     def __init__(self):
