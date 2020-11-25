@@ -2,8 +2,8 @@ import random
 import Player
 import Matrix
 
-ROWS = 20
-COLUMNS = 20
+ROWS = 12
+COLUMNS = 18
 
 
 class PowerUp:

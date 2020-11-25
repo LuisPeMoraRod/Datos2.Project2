@@ -1,5 +1,6 @@
 from Matrix import *
 from Bomb import *
+from PowerUp import *
 
 # constants
 LIGHT_GREEN = (120, 187, 82)
@@ -10,6 +11,10 @@ BROWN = (169, 109, 69)
 YELLOW = (233, 247, 14)
 RED = (247, 14, 14)
 BLACK = (0, 0, 0)
+BLUE = (0, 168, 187)
+PURPLE = (108, 52, 131)
+PINK = (240, 54, 192)
+ORANGE = (230, 126, 34)
 BLOCK_SIZE = 50
 ROWS = 12
 COLUMNS = 18
@@ -88,3 +93,10 @@ class Board:
         self.players.add(self.matrix.enemy4)
         self.players.add(self.matrix.enemy5)
         self.players.add(self.matrix.enemy6)
+
+    def create_power_up(self, frame):
+
+        if frame % 30 == 0:
+            power_up = PowerUp([0, 0], self.matrix)
+            print('\n')
+            print('new power up')

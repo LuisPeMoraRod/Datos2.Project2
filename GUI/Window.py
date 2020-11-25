@@ -3,8 +3,7 @@ import sys
 import pygame
 from pygame.locals import *
 from GUI.Board import *
-from PowerUp import *
-from Matrix import *
+
 
 HEIGHT = 750
 WIDTH = 1400
@@ -38,11 +37,11 @@ class MainWindow:
         board = Board.get_instace()
 
         # Frame quantity
-        frame = 0
-
+        #frame = 0
+        #FPS = 2
+        #clock = pygame.time.Clock()
 
         while not self.__done:
-
             # clock.tick(FPS)
             screen.blit(self.__bg_image, (0, 0))
             board.draw_base(screen)
@@ -52,19 +51,11 @@ class MainWindow:
                     pygame.quit()
                     sys.exit()
 
-            # Sprites update
             board.players.update()
 
             # Random power up creation
-            if frame % 30 == 0:
-                power_up = PowerUp([0, 0], Matrix.get_instance())
-                print('\n')
-                print('new power up')
+            # board.create_power_up(frame)
 
-            frame += 1
+            #frame += 1
 
             pygame.display.flip()
-
-
-
-
