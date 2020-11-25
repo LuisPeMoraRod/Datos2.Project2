@@ -18,6 +18,7 @@ class Board:
     matrix = Matrix.get_instance()
     print(matrix)
     board_matrix = matrix.get_matrix()
+    print(matrix)
 
     @staticmethod
     def get_instace():

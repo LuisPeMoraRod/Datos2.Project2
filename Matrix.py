@@ -29,6 +29,7 @@ class Matrix:
         else:
             Matrix.__instance = self
             self.matrix = []
+            self.positions = []
             self.generate_matrix()
 
     def __str__(self):
@@ -48,8 +49,8 @@ class Matrix:
 
     def generate_matrix(self):
         self.add_unbreakables()
-        positions = self.set_initial_positions()
-        self.add_players(positions)
+        self.positions = self.set_initial_positions()
+        self.add_players(self.positions)
         self.add_random_unbreakables()
         bt = BackTracking(self.unbreakables)
         self.add_random_breakables()
@@ -77,10 +78,10 @@ class Matrix:
 
     def add_random_unbreakables(self):
         """
-        Method that changes 5% of the total of nodes in the matrix (ROWS x COLUMNS) to randomly distributed unbreakable blocks
+        Method that changes 7% of the total of nodes in the matrix (ROWS x COLUMNS) to randomly distributed unbreakable blocks
         :return:
         """
-        random_blocks = 0.05 * ROWS * COLUMNS
+        random_blocks = 0.07 * ROWS * COLUMNS
         blocks_counter = 0
         while blocks_counter < random_blocks:
             i = random.randint(0, ROWS - 1)
@@ -99,19 +100,49 @@ class Matrix:
 
     def add_random_breakables(self):
         """
-        Method that changes 15% of the total of nodes in the matrix (ROWS x COLUMNS) to randomly distributed unbreakable blocks
+        Method that changes 25% of the total of nodes in the matrix (ROWS x COLUMNS) to randomly distributed unbreakable blocks
         :return:
         """
-        random_blocks = 0.15 * ROWS * COLUMNS
+        random_blocks = 0.25 * ROWS * COLUMNS
         blocks_counter = 0
         while blocks_counter < random_blocks:
             i = random.randint(0, ROWS - 1)
             j = random.randint(0, COLUMNS - 1)
-            if isinstance(self.matrix[i][j], Blank):
+            if isinstance(self.matrix[i][j], Blank) and not self.is_in_player_zone(i, j):
                 breakable = Breakable((i, j))
                 self.matrix[i][j] = breakable
                 blocks_counter += 1
                 self.unbreakables += 1
+
+    def is_in_player_zone(self, i, j):
+        """
+        Validation if index i,j is and adjacent node of the position of any player
+        :param i:
+        :param j:
+        :return:
+        """
+        positions_list = self.positions
+        for position in positions_list:
+            if i == position[0]-1 and j == position[1]-1:
+                return True
+            elif i == position[0]-1 and j == position[1]:
+                return True
+            elif i == position[0]-1 and j == position[1]+1:
+                return True
+            elif i == position[0] and j == position[1]-1:
+                return True
+            elif i == position[0] and j == position[1]:
+                return True
+            elif i == position[0] and j == position[1]+1:
+                return True
+            elif i == position[0]+1 and j == position[1]-1:
+                return True
+            elif i == position[0]+1 and j == position[1]:
+                return True
+            elif i == position[0]+1 and j == position[1]+1:
+                return True
+        return False
+
 
     def add_players(self, positions):
         """Adds players to the matrix"""
