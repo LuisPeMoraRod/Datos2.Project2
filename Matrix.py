@@ -6,6 +6,7 @@ WHITE = (255, 255, 255)
 ROWS = 18
 COLUMNS = 12
 
+
 class Matrix:
     """
     Class that creates the matrix on which the main algorithms and the game board works. Implements Singleton creational pattern design
@@ -79,11 +80,11 @@ class Matrix:
         Method that changes 5% of the total of nodes in the matrix (ROWS x COLUMNS) to randomly distributed unbreakable blocks
         :return:
         """
-        random_blocks = 0.05*ROWS*COLUMNS
+        random_blocks = 0.05 * ROWS * COLUMNS
         blocks_counter = 0
         while blocks_counter < random_blocks:
-            i = random.randint(0, ROWS-1)
-            j = random.randint(0, COLUMNS-1)
+            i = random.randint(0, ROWS - 1)
+            j = random.randint(0, COLUMNS - 1)
             if isinstance(self.matrix[i][j], Blank):
                 unbreakable = Unbreakable((i, j))
                 self.matrix[i][j] = unbreakable
@@ -111,7 +112,6 @@ class Matrix:
                 self.matrix[i][j] = breakable
                 blocks_counter += 1
                 self.unbreakables += 1
-
 
     def add_players(self, positions):
         """Adds players to the matrix"""
@@ -165,7 +165,6 @@ class Matrix:
             j = player.get_y()
             self.matrix[i][j] = player
 
-
     def set_initial_positions(self):
         """
         Defines the initial position of the 8 players. Returns a list with the coordinates or indexes where each player will be placed in the matrix
@@ -173,13 +172,13 @@ class Matrix:
         """
         initial_positions = []
         for k in range(0, 4):
-            i = int((ROWS-1) * k/3)
+            i = int((ROWS - 1) * k / 3)
             if k % 2 == 0:
                 j = 0
             else:
-                j = int((COLUMNS-1)/2)
+                j = int((COLUMNS - 1) / 2)
             initial_positions.append([i, j])
-            j += int((COLUMNS-1)/2)
+            j += int((COLUMNS - 1) / 2)
             initial_positions.append([i, j])
         return initial_positions
 
@@ -205,6 +204,7 @@ class BackTracking:
     """
     Class that executes backtracking algorithm to check if all blank spaces are reachable
     """
+
     def __init__(self, unbreakables):
         self.matrix = Matrix.get_instance()
         self.visited = []
@@ -223,7 +223,7 @@ class BackTracking:
         """
 
         position = (i, j)
-        if len(self.visited) == ROWS*COLUMNS-self.unbreakables:
+        if len(self.visited) == ROWS * COLUMNS - self.unbreakables:
             return True
         if i == ROWS or j == COLUMNS:
             return False

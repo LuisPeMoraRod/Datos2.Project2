@@ -6,6 +6,8 @@ DARK_GREEN = (113, 177, 76)
 DARK_GREY = (61, 64, 75)
 LIGHT_GREY = (145, 147, 156)
 BROWN = (169, 109, 69)
+YELLOW = (233, 247, 14)
+RED = (247, 14, 14)
 BLOCK_SIZE = 50
 ROWS = 12
 COLUMNS = 18
@@ -59,6 +61,12 @@ class Board:
                     elif isinstance(j, Breakable):
                         rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BROWN, rect)
+                    elif isinstance(j, User):
+                        user = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        pygame.draw.rect(SCREEN, YELLOW, user)
+                    elif isinstance(j, Enemy):
+                        enemy = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        pygame.draw.rect(SCREEN, RED, enemy)
                 y = y+1
             x = x+1
             y = 2
