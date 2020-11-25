@@ -3,8 +3,8 @@ from Player import *
 import random
 
 WHITE = (255, 255, 255)
-ROWS = 18
-COLUMNS = 12
+ROWS = 12
+COLUMNS = 18
 
 
 class Matrix:

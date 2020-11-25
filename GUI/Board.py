@@ -16,6 +16,7 @@ COLUMNS = 18
 class Board:
     __instance = None
     matrix = Matrix.get_instance()
+    print(matrix)
     board_matrix = matrix.get_matrix()
 
     @staticmethod
@@ -67,6 +68,6 @@ class Board:
                     elif isinstance(j, Enemy):
                         enemy = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, RED, enemy)
-                y = y+1
-            x = x+1
-            y = 2
+                x = x+1
+            x = 5
+            y = y +1
