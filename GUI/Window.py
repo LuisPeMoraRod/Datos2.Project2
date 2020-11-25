@@ -37,9 +37,9 @@ class MainWindow:
         board = Board.get_instace()
 
         # Frame quantity
-        #frame = 0
-        #FPS = 2
-        #clock = pygame.time.Clock()
+        frame = 0
+        FPS = 2
+        clock = pygame.time.Clock()
 
         while not self.__done:
             # clock.tick(FPS)
@@ -54,8 +54,8 @@ class MainWindow:
             board.players.update()
 
             # Random power up creation
-            # board.create_power_up(frame)
+            board.create_power_up(frame)
 
-            #frame += 1
+            frame += 1
 
             pygame.display.flip()

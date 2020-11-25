@@ -96,7 +96,7 @@ class Board:
 
     def create_power_up(self, frame):
 
-        if frame % 30 == 0:
+        if frame % 300 == 0:
             power_up = PowerUp([0, 0], self.matrix)
             print('\n')
             print('new power up')

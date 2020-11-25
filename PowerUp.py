@@ -1,6 +1,6 @@
 import random
 import Player
-import Matrix
+from Matrix import Blank
 
 ROWS = 12
 COLUMNS = 18
@@ -27,7 +27,7 @@ class PowerUp:
             pos_i = random.randint(0, ROWS - 1)
             pos_j = random.randint(0, COLUMNS - 1)
 
-            if isinstance(self.matrix[pos_i][pos_j], Matrix.Blank):
+            if isinstance(self.matrix[pos_i][pos_j], Blank):
                 flag = True
 
         self.position[0] = pos_i
