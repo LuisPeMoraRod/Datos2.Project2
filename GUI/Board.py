@@ -1,4 +1,5 @@
 from Matrix import *
+from Bomb import *
 
 # constants
 LIGHT_GREEN = (120, 187, 82)
@@ -8,6 +9,7 @@ LIGHT_GREY = (145, 147, 156)
 BROWN = (169, 109, 69)
 YELLOW = (233, 247, 14)
 RED = (247, 14, 14)
+BLACK = (0, 0, 0)
 BLOCK_SIZE = 50
 ROWS = 12
 COLUMNS = 18
@@ -16,9 +18,8 @@ COLUMNS = 18
 class Board:
     __instance = None
     matrix = Matrix.get_instance()
-    print(matrix)
     board_matrix = matrix.get_matrix()
-    print(matrix)
+    players = pygame.sprite.Group()
 
     @staticmethod
     def get_instace():
@@ -31,6 +32,7 @@ class Board:
             raise Exception("A board has already been created!")
         else:
             Board.__instance = self
+            self.create_players_group()
 
     def draw_base(self, SCREEN):
         pos_x = 5
@@ -38,8 +40,8 @@ class Board:
 
         for x in range(pos_x, COLUMNS + pos_x):
             for y in range(pos_y, ROWS + pos_y):
-                if x%2 == 0:
-                    if y%2 == 0:
+                if x % 2 == 0:
+                    if y % 2 == 0:
                         color = LIGHT_GREEN
                     else:
                         color = DARK_GREEN
@@ -69,6 +71,20 @@ class Board:
                     elif isinstance(j, Enemy):
                         enemy = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, RED, enemy)
-                x = x+1
+                    elif isinstance(j, Bomb):
+                        bomb = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        pygame.draw.rect(SCREEN, BLACK, bomb)
+
+                x = x + 1
             x = 5
-            y = y +1
+            y = y + 1
+
+    def create_players_group(self):
+        self.players.add(self.matrix.user)
+        self.players.add(self.matrix.enemy0)
+        self.players.add(self.matrix.enemy1)
+        self.players.add(self.matrix.enemy2)
+        self.players.add(self.matrix.enemy3)
+        self.players.add(self.matrix.enemy4)
+        self.players.add(self.matrix.enemy5)
+        self.players.add(self.matrix.enemy6)

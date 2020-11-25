@@ -45,8 +45,9 @@ class MainWindow:
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
+            board.players.update()
             pygame.display.flip()
+
             # Sprites update
-            # players.update()
-            # print('\n')
-            # print(matrix0)
+
+
