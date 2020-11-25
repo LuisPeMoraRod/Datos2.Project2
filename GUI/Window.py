@@ -3,6 +3,8 @@ import sys
 import pygame
 from pygame.locals import *
 from GUI.Board import *
+from PowerUp import *
+from Matrix import *
 
 HEIGHT = 750
 WIDTH = 1400
@@ -35,8 +37,12 @@ class MainWindow:
         pygame.display.set_caption('BomberTEC')
         board = Board.get_instace()
 
+        # Frame quantity
+        frame = 0
+
 
         while not self.__done:
+
             # clock.tick(FPS)
             screen.blit(self.__bg_image, (0, 0))
             board.draw_base(screen)
@@ -45,9 +51,20 @@ class MainWindow:
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
-            board.players.update()
-            pygame.display.flip()
 
             # Sprites update
+            board.players.update()
+
+            # Random power up creation
+            if frame % 30 == 0:
+                power_up = PowerUp([0, 0], Matrix.get_instance())
+                print('\n')
+                print('new power up')
+
+            frame += 1
+
+            pygame.display.flip()
+
+
 
 
