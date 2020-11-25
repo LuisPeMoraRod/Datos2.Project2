@@ -2,6 +2,7 @@ import Matrix
 import pygame
 import Bomb
 import random
+import GeneticAlgorithm
 
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
@@ -112,6 +113,10 @@ class Player (pygame.sprite.Sprite):
 
 
 class User(Player):
+    """
+    Class of the user object
+    Inherits from the player class
+    """
 
     def __init__(self, position, matrix):
         super().__init__(position, matrix)
@@ -151,6 +156,10 @@ class User(Player):
 
 
 class Enemy(Player):
+    """
+    Class of the enemy objects
+    Inherits from the player class
+    """
 
     def __init__(self, position, matrix):
         super().__init__(position, matrix)
@@ -168,6 +177,25 @@ class Enemy(Player):
         self.velocity = enemy_stats[1]*100
         self.explosion_radius = enemy_stats[2]
         self.evasion = enemy_stats[3]
+
+        # Genetics
+        self.genetics = GeneticAlgorithm.GeneticAlgorithm()
+
+    def choose_next_action(self):
+        random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH)
+        random_action = self.genetics.chromosome[random_number]
+        if random_action == 0:
+            # Hide action
+            pass
+        elif random_action == 1:
+            # Search power up
+            pass
+        elif random_action == 2:
+            # Search an enemy
+            pass
+        elif random_action == 3:
+            # Leave a bomb
+            pass
 
     def __str__(self):
         """

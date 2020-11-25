@@ -27,7 +27,7 @@ class Board:
     players = pygame.sprite.Group()
 
     @staticmethod
-    def get_instace():
+    def get_instance():
         if Board.__instance is None:
             return Board()
         return Board.__instance
@@ -109,6 +109,6 @@ class Board:
     def create_power_up(self, frame):
 
         if frame % 300 == 0:
-            power_up = PowerUp([0, 0], self.matrix)
+            PowerUp([0, 0], self.matrix)
             print('\n')
             print('new power up')

@@ -1,11 +1,9 @@
 import sys
-
-import pygame
 from pygame.locals import *
 from GUI.Board import *
 
 
-HEIGHT = 750
+HEIGHT = 700
 WIDTH = 1400
 
 
@@ -34,15 +32,12 @@ class MainWindow:
         pygame.init()
         screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
         pygame.display.set_caption('BomberTEC')
-        board = Board.get_instace()
+        board = Board.get_instance()
 
         # Frame quantity
         frame = 0
-        FPS = 2
-        clock = pygame.time.Clock()
 
         while not self.__done:
-            # clock.tick(FPS)
             screen.blit(self.__bg_image, (0, 0))
             board.draw_base(screen)
             board.draw_board(screen)
