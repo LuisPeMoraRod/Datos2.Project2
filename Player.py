@@ -4,7 +4,7 @@ import Bomb
 import random
 
 # Constants
-TIME_BETWEEN_MOVEMENTS = 500
+TIME_BETWEEN_MOVEMENTS = 150
 
 
 class Player (pygame.sprite.Sprite):
