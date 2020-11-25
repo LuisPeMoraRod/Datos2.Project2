@@ -1,23 +1,30 @@
 import random
-import Player
 from Matrix import Blank
+from Fire import *
+from Block import *
+from Player import Enemy
+
 
 ROWS = 12
 COLUMNS = 18
 
 
 class PowerUp:
+
     """
     Class for the power up objects
     """
+
     power_up_list = ['CrossBomb', 'Healing', 'Shield', 'Shoe']
 
     def __init__(self, position, matrix):
+
         """
         PowerUp constructor
         :param position: list
         :param matrix: Matrix
         """
+
         self.matrix = matrix.matrix
         self.position = position
 
@@ -51,12 +58,8 @@ class PowerUp:
     def get_y(self):
         return self.position[1]
 
-    """
-    def activate(self):
-    Activate the power up when is collect it
-    The power up does what it has to do
-    It depends on the power up type
-    """
+    def get_power_up(self, x, y):
+        return self.matrix[x][y]
 
 
 class CrossBomb(PowerUp):
@@ -65,58 +68,42 @@ class CrossBomb(PowerUp):
 
         self.matrix = matrix
         self.position = position
-        self.up_radius = 1
-        self.down_radius = 1
-        self.right_radius = 1
-        self.left_radius = 1
 
-    def is_Blank(self, direction):
-        """
-        Method that checks if the required node of the matrix is a blank space
-        :return: bool
-        """
-        pass
+    def activate(self, player):
 
-    def is_breakable(self, direction):
         """
-        Method that checks if the required node of the matrix is a breakable one
-        :return: bool
-        """
-        pass
-
-    def is_unbreakable(self, direction):
-        """
-        Method that checks if the required node of the matrix is an unbreakable one
-        :return: bool
-        """
-        pass
-
-    def is_enemy(self, direction):
-        """
-        Method that checks if in the required node of the matrix is an enemy
-        :return: bool
-        """
-        pass
-
-    def expand_radius(self, direction):
-        """
-        Method that increases the correct radius depending on direction parameter
+        Method that spread the cross bomb in the matrix
         :return: void
         """
-        if direction == 'up':
-            self.up_radius += 1
-        elif direction == 'down':
-            self.down_radius += 1
-        elif direction == 'right':
-            self.right_radius += 1
-        elif direction == 'left':
-            self.left_radius += 1
+
+        player.leave_cross_bomb()
+
+        pos_i = player.get_x()
+        pos_j = player.get_y()
+
+        for i in range(0, ROWS): # Horizontal explosion
+
+            if isinstance(self.matrix[i][pos_j], Blank) or \
+               isinstance(self.matrix[i][pos_j], Breakable) or \
+               isinstance(self.matrix[i][pos_j], Enemy):
+
+                self.matrix[i][pos_j] = Fire((pos_i, pos_j), self.matrix)
+
+        for j in range(0, COLUMNS): # Vertical explosion
+
+            if isinstance(self.matrix[pos_i][j], Blank) or \
+               isinstance(self.matrix[pos_i][j], Breakable) or \
+               isinstance(self.matrix[pos_i][j], Enemy):
+
+                self.matrix[pos_i][j] = Fire((pos_i, pos_j), self.matrix)
 
     def __str__(self):
+
         """
         ASCII identifier for the cross bomb power up
         :return: "c"
         """
+
         return "c"
 
 
@@ -128,21 +115,22 @@ class Healing(PowerUp):
         self.position = position
         self.player = None
 
-    def heal(self, player):
+    def activate(self, player):
+
         """
         Method that increases the user o enemy live
         :return: void
         """
-        if isinstance(player, Player.User):
-            player.lives += 1  # one is OK or should be better more of them
-        elif isinstance(player, Player.Enemy):
-            player.lives += 1  # one is OK or should be better more of them
+
+        player.lives += 1  # one is OK or should be better more of them
 
     def __str__(self):
+
         """
         ASCII identifier for the healing power up
         :return: "h"
         """
+
         return "h"
 
 
@@ -155,13 +143,16 @@ class Shield(PowerUp):
         self.duration = 30  # quantity in frames
 
     def activate(self, player):
+
         player.has_shield = True
 
     def __str__(self):
+
         """
         ASCII identifier for the shield power up
         :return: "s"
         """
+
         return "s"
 
 
@@ -171,15 +162,18 @@ class Shoe(PowerUp):
 
         self.matrix = matrix
         self.position = position
-        self.kick_radius = 3  # how many node are necessary?
+        self.kick_radius = 3  # how many nodes are necessary?
 
-    def kick_bomb(self):
+    def activate(self, player):
+
         # change bomb position in the matrix
         pass
 
     def __str__(self):
+
         """
         ASCII identifier for the shoe power up
         :return: "z"
         """
+
         return "z"

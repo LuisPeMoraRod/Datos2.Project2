@@ -1,6 +1,4 @@
 import sys
-
-import pygame
 from pygame.locals import *
 from GUI.Board import *
 
@@ -10,12 +8,14 @@ WIDTH = 1400
 
 
 class MainWindow:
+
     __instance = None
     __bg_image = pygame.image.load("images/background.png")
     __done = False
 
     @staticmethod
     def get_instance():
+
         if MainWindow.__instance is None:
             MainWindow()
         return MainWindow.__instance
@@ -24,7 +24,6 @@ class MainWindow:
 
         if MainWindow.__instance is not None:
             raise Exception("There's already a Window running!")
-
         else:
             MainWindow.__instance = self
             self.__create_window()
@@ -38,15 +37,18 @@ class MainWindow:
 
         # Frame quantity
         frame = 0
-        FPS = 2
-        clock = pygame.time.Clock()
+
+        # clock = pygame.time.Clock()
 
         while not self.__done:
+
             # clock.tick(FPS)
             screen.blit(self.__bg_image, (0, 0))
             board.draw_base(screen)
             board.draw_board(screen)
+
             for event in pygame.event.get():
+
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()

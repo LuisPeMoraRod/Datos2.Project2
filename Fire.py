@@ -1,4 +1,4 @@
-class Bomb:
+class Fire:
 
     """
     Class for the bombs objects
@@ -16,4 +16,4 @@ class Bomb:
         :return: "o"
         """
 
-        return "o"
+        return "f"
