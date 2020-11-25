@@ -4,6 +4,7 @@ import pygame
 from pygame.locals import *
 from GUI.Board import *
 
+
 HEIGHT = 750
 WIDTH = 1400
 
@@ -35,6 +36,10 @@ class MainWindow:
         pygame.display.set_caption('BomberTEC')
         board = Board.get_instace()
 
+        # Frame quantity
+        frame = 0
+        FPS = 2
+        clock = pygame.time.Clock()
 
         while not self.__done:
             # clock.tick(FPS)
@@ -45,9 +50,12 @@ class MainWindow:
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
+
             board.players.update()
+
+            # Random power up creation
+            board.create_power_up(frame)
+
+            frame += 1
+
             pygame.display.flip()
-
-            # Sprites update
-
-
