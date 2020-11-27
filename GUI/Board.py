@@ -1,6 +1,7 @@
 from Matrix import *
-from Bomb import *
 from PowerUp import *
+from Bomb import *
+from Route import *
 
 # constants
 LIGHT_GREEN = (120, 187, 82)
@@ -25,6 +26,9 @@ class Board:
     matrix = Matrix.get_instance()
     board_matrix = matrix.get_matrix()
     players = pygame.sprite.Group()
+
+    route = Route(None, 0, 0)
+    print(route)
 
     @staticmethod
     def get_instance():
@@ -76,7 +80,7 @@ class Board:
                     elif isinstance(j, Enemy):
                         enemy = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, RED, enemy)
-                    elif isinstance(j, Bomb):
+                    elif isinstance(j, Bomb.Bomb):
                         bomb = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BLACK, bomb)
                     elif isinstance(j, Shoe):
@@ -108,7 +112,7 @@ class Board:
 
     def create_power_up(self, frame):
 
-        if frame % 300 == 0:
+        if frame % 5000 == 0:
             PowerUp([0, 0], self.matrix)
             print('\n')
             print('new power up')
