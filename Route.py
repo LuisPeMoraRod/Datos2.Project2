@@ -25,7 +25,7 @@ class Route:
 
     def __str__(self):
         route = self.get_route(self.i_objective, self.j_objective, [])
-        commands = self.get_commands_list(route)
+        commands = self.set_commands_list(route)
         route_str = ""
         for element in commands:
             route_str += element+"\n"
@@ -157,7 +157,7 @@ class Route:
                 route.insert(0, (element[0].i, element[0].j))
                 return self.get_route(element[1].i, element[1].j, route)
 
-    def get_commands_list(self, route):
+    def set_commands_list(self, route):
         """
         Generates list with commands to get to the objective
         :param i:
@@ -184,6 +184,11 @@ class Route:
                     commands.append("right")
                 if route[i+1][1] - route[i][1] < 0:
                     commands.append("left")
+        return commands
+
+    def get_commands(self):
+        route = self.get_route(self.i_objective, self.j_objective, [])
+        commands = self.set_commands_list(route)
         return commands
 
 
