@@ -1,7 +1,14 @@
+import random
 import Matrix
 import pygame
+
+from GUI.Board import *
 from Bomb import *
-from PowerUp import *
+from PowerUp import CrossBomb
+from PowerUp import Healing
+from PowerUp import Shield
+from PowerUp import Shoe
+
 
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
@@ -51,6 +58,7 @@ class Player (pygame.sprite.Sprite):
 
         pos_i = self.get_x()
         pos_j = self.get_y()
+        player = self.matrix[pos_i][pos_j]
 
         if not pos_j < Matrix.COLUMNS - 1:
             return ""
@@ -60,29 +68,38 @@ class Player (pygame.sprite.Sprite):
 
             if self.new_bomb:
                 self.leave_bomb()
+            else:
+                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
 
             self.position[1] += 1
 
-        elif isinstance(self.matrix[pos_i][pos_j], CrossBomb):
-            CrossBomb.activate(self)
-            self.position[1] += 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Healing):
-            Healing.activate(self)
-            self.position[1] += 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Shield):
-            Shield.activate(self)
-            self.position[1] += 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Shoe):
-            Shoe.activate(self)
-            self.position[1] += 1
-        else:
+        elif isinstance(self.matrix[pos_i][pos_j + 1], CrossBomb):
             self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
             self.position[1] += 1
+            cross_bomb = CrossBomb((pos_i, pos_j + 1), self.matrix)
+            cross_bomb.activate(player)
+            self.matrix[pos_i][pos_j + 1] = self
 
+        elif isinstance(self.matrix[pos_i][pos_j + 1], Healing):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[1] += 1
+            healing = Healing((pos_i, pos_j + 1), self.matrix)
+            healing.activate(player)
+            self.matrix[pos_i][pos_j + 1] = self
 
+        elif isinstance(self.matrix[pos_i][pos_j + 1], Shield):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[1] += 1
+            shield = Shield((pos_i, pos_j + 1), self.matrix)
+            shield.activate(player)
+            self.matrix[pos_i][pos_j + 1] = self
+
+        elif isinstance(self.matrix[pos_i][pos_j + 1], Shoe):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[1] += 1
+            shoe = Shoe((pos_i, pos_j + 1), self.matrix)
+            shoe.activate(player)
+            self.matrix[pos_i][pos_j + 1] = self
 
     def move_left(self):
 
@@ -92,6 +109,7 @@ class Player (pygame.sprite.Sprite):
 
         pos_i = self.get_x()
         pos_j = self.get_y()
+        player = self.matrix[pos_i][pos_j]
 
         if not pos_j > 0:
             return ""
@@ -101,28 +119,38 @@ class Player (pygame.sprite.Sprite):
 
             if self.new_bomb:
                 self.leave_bomb()
+            else:
+                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
 
             self.position[1] -= 1
 
-        elif isinstance(self.matrix[pos_i][pos_j], CrossBomb):
-            CrossBomb.activate(self)
-            self.position[1] -= 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Healing):
-            Healing.activate(self)
-            self.position[1] -= 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Shield):
-            Shield.activate(self)
-            self.position[1] -= 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Shoe):
-            Shoe.activate(self)
-            self.position[1] -= 1
-
-        else:
+        elif isinstance(self.matrix[pos_i][pos_j - 1], CrossBomb):
             self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
             self.position[1] -= 1
+            cross_bomb = CrossBomb((pos_i, pos_j - 1), self.matrix)
+            cross_bomb.activate(player)
+            self.matrix[pos_i][pos_j - 1] = self
+
+        elif isinstance(self.matrix[pos_i][pos_j - 1], Healing):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[1] -= 1
+            healing = Healing((pos_i, pos_j - 1), self.matrix)
+            healing.activate(player)
+            self.matrix[pos_i][pos_j - 1] = self
+
+        elif isinstance(self.matrix[pos_i][pos_j - 1], Shield):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[1] -= 1
+            shield = Shield((pos_i, pos_j - 1), self.matrix)
+            shield.activate(player)
+            self.matrix[pos_i][pos_j - 1] = self
+
+        elif isinstance(self.matrix[pos_i][pos_j - 1], Shoe):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[1] -= 1
+            shoe = Shoe((pos_i, pos_j - 1), self.matrix)
+            shoe.activate(player)
+            self.matrix[pos_i][pos_j - 1] = self
 
     def move_up(self):
 
@@ -132,6 +160,7 @@ class Player (pygame.sprite.Sprite):
 
         pos_i = self.get_x()
         pos_j = self.get_y()
+        player = self.matrix[pos_i][pos_j]
 
         if not pos_i > 0:
             return ""
@@ -141,28 +170,38 @@ class Player (pygame.sprite.Sprite):
 
             if self.new_bomb:
                 self.leave_bomb()
+            else:
+                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
 
             self.position[0] -= 1
 
-        elif isinstance(self.matrix[pos_i][pos_j], CrossBomb):
-            CrossBomb.activate(self)
-            self.position[0] -= 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Healing):
-            Healing.activate(self)
-            self.position[0] -= 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Shield):
-            Shield.activate(self)
-            self.position[0] -= 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Shoe):
-            Shoe.activate(self)
-            self.position[0] -= 1
-
-        else:
+        elif isinstance(self.matrix[pos_i - 1][pos_j], CrossBomb):
             self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
             self.position[0] -= 1
+            cross_bomb = CrossBomb((pos_i - 1, pos_j), self.matrix)
+            cross_bomb.activate(player)
+            self.matrix[pos_i - 1][pos_j] = self
+
+        elif isinstance(self.matrix[pos_i - 1][pos_j], Healing):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[0] -= 1
+            healing = Healing((pos_i - 1, pos_j), self.matrix)
+            healing.activate(player)
+            self.matrix[pos_i - 1][pos_j] = self
+
+        elif isinstance(self.matrix[pos_i - 1][pos_j], Shield):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[0] -= 1
+            shield = Shield((pos_i - 1, pos_j), self.matrix)
+            shield.activate(player)
+            self.matrix[pos_i - 1][pos_j] = self
+
+        elif isinstance(self.matrix[pos_i - 1][pos_j], Shoe):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[0] -= 1
+            shoe = Shoe((pos_i - 1, pos_j), self.matrix)
+            shoe.activate(player)
+            self.matrix[pos_i - 1][pos_j] = self
 
     def move_down(self):
 
@@ -172,6 +211,7 @@ class Player (pygame.sprite.Sprite):
 
         pos_i = self.get_x()
         pos_j = self.get_y()
+        player = self.matrix[pos_i][pos_j]
 
         if not pos_i < Matrix.ROWS - 1:
             return ""
@@ -181,28 +221,38 @@ class Player (pygame.sprite.Sprite):
 
             if self.new_bomb:
                 self.leave_bomb()
+            else:
+                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
 
             self.position[0] += 1
 
-        elif isinstance(self.matrix[pos_i][pos_j], CrossBomb):
-            CrossBomb.activate(self)
-            self.position[0] += 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Healing):
-            Healing.activate(self)
-            self.position[0] += 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Shield):
-            Shield.activate(self)
-            self.position[0] += 1
-
-        elif isinstance(self.matrix[pos_i][pos_j], Shoe):
-            Shoe.activate(self)
-            self.position[0] += 1
-
-        else:
+        elif isinstance(self.matrix[pos_i + 1][pos_j], CrossBomb):
             self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[0] -= 1
+            self.position[0] += 1
+            cross_bomb = CrossBomb((pos_i + 1, pos_j), self.matrix)
+            cross_bomb.activate(player)
+            self.matrix[pos_i + 1][pos_j] = self
+
+        elif isinstance(self.matrix[pos_i + 1][pos_j], Healing):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[0] += 1
+            healing = Healing((pos_i + 1, pos_j), self.matrix)
+            healing.activate(player)
+            self.matrix[pos_i + 1][pos_j] = self
+
+        elif isinstance(self.matrix[pos_i + 1][pos_j], Shield):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[0] += 1
+            shield = Shield((pos_i + 1, pos_j), self.matrix)
+            shield.activate(player)
+            self.matrix[pos_i + 1][pos_j] = self
+
+        elif isinstance(self.matrix[pos_i + 1][pos_j], Shoe):
+            self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+            self.position[0] += 1
+            shoe = Shoe((pos_i + 1, pos_j), self.matrix)
+            shoe.activate(player)
+            self.matrix[pos_i + 1][pos_j] = self
 
     def leave_bomb(self):
 
@@ -215,11 +265,6 @@ class Player (pygame.sprite.Sprite):
         self.matrix[pos_i][pos_j] = Bomb((pos_i, pos_j), self.matrix)
         self.new_bomb = False
 
-
-
-
-
-
     def leave_cross_bomb(self):
 
         """
@@ -230,13 +275,6 @@ class Player (pygame.sprite.Sprite):
         pos_j = self.get_y()
         self.matrix[pos_i][pos_j] = CrossBomb((pos_i, pos_j), self.matrix)
         self.cross_bomb = False
-
-
-
-
-
-
-
 
     def get_cross_bomb(self):
         return self.cross_bomb

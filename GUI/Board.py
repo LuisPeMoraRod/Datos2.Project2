@@ -1,7 +1,9 @@
-from Matrix import *
+import Matrix
+import Player
+import pygame
 from Bomb import *
 from PowerUp import *
-import pygame
+from Fire import *
 
 # Constants
 LIGHT_GREEN = (120, 187, 82)
@@ -16,6 +18,7 @@ BLUE = (0, 168, 187)
 PURPLE = (108, 52, 131)
 PINK = (240, 54, 192)
 ORANGE = (230, 126, 34)
+LIGHT_BLUE = (0, 255, 255)
 BLOCK_SIZE = 50
 ROWS = 12
 COLUMNS = 18
@@ -24,7 +27,7 @@ COLUMNS = 18
 class Board:
 
     __instance = None
-    matrix = Matrix.get_instance()
+    matrix = Matrix.Matrix.get_instance()
     board_matrix = matrix.get_matrix()
     players = pygame.sprite.Group()
 
@@ -74,7 +77,7 @@ class Board:
         for i in self.board_matrix:
             for j in i:
 
-                if not isinstance(j, Blank):
+                if not isinstance(j, Matrix.Blank):
 
                     if isinstance(j, Unbreakable):
                         rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
@@ -82,10 +85,10 @@ class Board:
                     elif isinstance(j, Breakable):
                         rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BROWN, rect)
-                    elif isinstance(j, User):
+                    elif isinstance(j, Player.User):
                         user = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, YELLOW, user)
-                    elif isinstance(j, Enemy):
+                    elif isinstance(j, Player.Enemy):
                         enemy = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, RED, enemy)
                     elif isinstance(j, Bomb):
@@ -103,6 +106,9 @@ class Board:
                     elif isinstance(j, Healing):
                         power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, PINK, power_up)
+                    elif isinstance(j, Fire):
+                        fire = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        pygame.draw.rect(SCREEN, LIGHT_BLUE, fire)
 
                 x = x + 1
 
@@ -125,7 +131,7 @@ class Board:
         # 6000 approximately every 14 secs
         # 9000 approximately every 24 secs
         # 12000 approximately 30 secs
-        if frame % 12000 == 0:
+        if frame % 500 == 0:
 
             power_up = PowerUp([0, 0], self.matrix)
             print('\n')

@@ -1,6 +1,8 @@
-from Block import *
-from Player import *
 import random
+from Block import *
+from Player import Player
+from Player import User
+from Player import Enemy
 
 WHITE = (255, 255, 255)
 ROWS = 12
@@ -320,7 +322,9 @@ class BackTracking:
         array = self.matrix.get_matrix()
 
         if (isinstance(array[i][j], Blank) or isinstance(array[i][j], Player)) and (position not in self.visited):
+
             self.visited.append(position)
+
             if self.is_safe_aux(i, j + 1):
                 return True
             elif self.is_safe_aux(i + 1, j):

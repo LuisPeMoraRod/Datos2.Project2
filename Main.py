@@ -1,4 +1,4 @@
-from GUI.Window import *
+from GUI.Window import MainWindow
 
 MainWindow.get_instance()
 
