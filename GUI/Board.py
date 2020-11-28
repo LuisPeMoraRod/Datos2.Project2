@@ -27,9 +27,6 @@ class Board:
     board_matrix = matrix.get_matrix()
     players = pygame.sprite.Group()
 
-    route = Route(None, 0, 0)
-    print(route)
-
     @staticmethod
     def get_instance():
         if Board.__instance is None:
@@ -80,7 +77,7 @@ class Board:
                     elif isinstance(j, Enemy):
                         enemy = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, RED, enemy)
-                    elif isinstance(j, Bomb.Bomb):
+                    elif isinstance(j, Bomb):
                         bomb = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BLACK, bomb)
                     elif isinstance(j, Shoe):
@@ -109,6 +106,14 @@ class Board:
         self.players.add(self.matrix.enemy4)
         self.players.add(self.matrix.enemy5)
         self.players.add(self.matrix.enemy6)
+
+        i0 = self.matrix.user.get_x()
+        j0 = self.matrix.user.get_y()
+
+        i1 = self.matrix.enemy0.get_x()
+        j1 = self.matrix.enemy0.get_y()
+        route = Route(i0, j0, i1, j1)
+
 
     def create_power_up(self, frame):
 
