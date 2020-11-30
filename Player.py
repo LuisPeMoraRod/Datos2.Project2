@@ -3,6 +3,7 @@ import pygame
 import Bomb
 import random
 import GeneticAlgorithm
+import Route
 
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
@@ -182,8 +183,9 @@ class Enemy(Player):
         self.genetics = GeneticAlgorithm.GeneticAlgorithm()
 
     def choose_next_action(self):
-        random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH)
+        random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
         random_action = self.genetics.chromosome[random_number]
+        random_action = 2
         if random_action == 0:
             # Hide action
             pass
@@ -192,7 +194,20 @@ class Enemy(Player):
             pass
         elif random_action == 2:
             # Search an enemy
-            pass
+            closest_enemy_position = self.find_closest_object("eu")  # "eu" means enemy or user
+            print("The closest object for: " + "[" + str(self.get_x()) + "," + str(self.get_y()) + "] is: ")
+            print(closest_enemy_position)
+            enemy_i = self.get_x()
+            print(enemy_i)
+            enemy_j = self.get_y()
+            print(enemy_j)
+            target_i = closest_enemy_position[0]
+            print(target_i)
+            target_j = closest_enemy_position[1]
+            print(target_j)
+
+            a_star_route = Route.Route(0, 8, 3, 8)
+            print(a_star_route.get_commands())
         elif random_action == 3:
             # Leave a bomb
             pass
@@ -208,4 +223,37 @@ class Enemy(Player):
         """
         Method that reads the enemy movements based on the genetic algorithm
         """
-        pass
+        self.choose_next_action()
+
+    def find_closest_object(self, object_str):
+        """
+        Method that approximates the closest object to the enemy
+        :param: object_str is the string that represents the object we want to search
+        :return: position (i,j) of the closest object
+        """
+        # Making the list of the objects
+        object_pos_list = []
+        for i in range(0, Matrix.ROWS):
+            for j in range(0, Matrix.COLUMNS):
+                if not (self.matrix[i][j].__str__() in object_str):
+                    continue
+                if i != self.get_x() or j != self.get_y():
+                    new_position = [i, j]
+                    object_pos_list.append(new_position)
+
+        # Return None if there's no option
+        if len(object_pos_list) == 0:
+            return
+
+        # Finding the closest object from the list
+        min_distance = 10000
+        min_position = object_pos_list[0]
+        for position in object_pos_list:
+            i_distance = abs(self.get_x() - position[0])
+            j_distance = abs(self.get_y() - position[1])
+            manhattan_distance = i_distance + j_distance
+            if manhattan_distance < min_distance:
+                min_position = position
+                min_distance = manhattan_distance
+        return min_position
+

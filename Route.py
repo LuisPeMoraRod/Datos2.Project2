@@ -1,7 +1,7 @@
 from Block import *
-from Player import *
-from Matrix import *
-from PowerUp import *
+import Player
+import Matrix
+from PowerUp import PowerUp
 from Bomb import *
 
 
@@ -18,7 +18,7 @@ class Route:
         self.i_objective = i_objective
         self.j_objective = j_objective
 
-        self.matrix = Matrix.get_instance().get_matrix()
+        self.matrix = Matrix.Matrix.get_instance().get_matrix()
 
         self.find_objective()
         print(str(self))
@@ -85,7 +85,7 @@ class Route:
             return 5
         elif isinstance(position, Player.Player):
             return 6
-        elif isinstance(position, Blank):
+        elif isinstance(position, Matrix.Blank):
             return 1
 
 
@@ -108,8 +108,6 @@ class Route:
                     self.visited.append(neighbor)
                     self.frontier.append(neighbor)
                     self.add_node(neighbor, current, new_cost)
-
-
 
     def is_in_visited(self, node):
         for element in self.visited:

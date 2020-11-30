@@ -23,9 +23,10 @@ COLUMNS = 18
 
 class Board:
     __instance = None
-    matrix = Matrix.get_instance()
+    matrix = Matrix.Matrix.get_instance()
     board_matrix = matrix.get_matrix()
-    players = pygame.sprite.Group()
+    users = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
 
     @staticmethod
     def get_instance():
@@ -98,26 +99,28 @@ class Board:
             y = y + 1
 
     def create_players_group(self):
-        self.players.add(self.matrix.user)
-        self.players.add(self.matrix.enemy0)
-        self.players.add(self.matrix.enemy1)
-        self.players.add(self.matrix.enemy2)
-        self.players.add(self.matrix.enemy3)
-        self.players.add(self.matrix.enemy4)
-        self.players.add(self.matrix.enemy5)
-        self.players.add(self.matrix.enemy6)
+        self.users.add(self.matrix.user)
+        self.enemies.add(self.matrix.enemy0)
+        self.enemies.add(self.matrix.enemy1)
+        self.enemies.add(self.matrix.enemy2)
+        self.enemies.add(self.matrix.enemy3)
+        self.enemies.add(self.matrix.enemy4)
+        self.enemies.add(self.matrix.enemy5)
+        self.enemies.add(self.matrix.enemy6)
 
         i0 = self.matrix.user.get_x()
         j0 = self.matrix.user.get_y()
 
         i1 = self.matrix.enemy0.get_x()
         j1 = self.matrix.enemy0.get_y()
+        print(i0)
+        print(j0)
         route = Route(i0, j0, i1, j1)
+        print(route.get_commands())
 
 
     def create_power_up(self, frame):
 
-        if frame % 5000 == 0:
+        if frame % 50000 == 0:
             PowerUp([0, 0], self.matrix)
             print('\n')
-            print('new power up')
