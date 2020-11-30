@@ -113,8 +113,8 @@ class Board:
 
         i1 = self.matrix.enemy3.get_x()
         j1 = self.matrix.enemy3.get_y()
-        print(i0)
-        print(j0)
+        print(str(i0)+" "+str(j0))
+        print(str(i1)+" "+str(j1))
         route = Route(i0, j0, i1, j1)
         print(route.get_commands())
 
