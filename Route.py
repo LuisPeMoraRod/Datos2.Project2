@@ -7,8 +7,14 @@ from Bomb import *
 
 class Route:
 
-
     def __init__(self, i_start, j_start, i_objective, j_objective):
+        """
+        Constructor method
+        :param i_start:
+        :param j_start:
+        :param i_objective:
+        :param j_objective:
+        """
         self.frontier = []
         self.visited = []
         self.costs = []
@@ -105,19 +111,31 @@ class Route:
                 break
 
             for neighbor in self.get_neighbors(current):
-                new_cost = self.cost_so_far(current) + self.get_cost(neighbor) #+ self.heuristic(neighbor.i, neighbor.j, self.i_objective, self.j_objective)
+                new_cost = self.cost_so_far(current) + self.get_cost(neighbor) + self.heuristic(neighbor.i, neighbor.j, self.i_objective, self.j_objective)
                 if not self.is_in_visited(neighbor) or self.is_lower(neighbor, new_cost):
                     self.visited.append(neighbor)
+                    manhattan = self.heuristic(neighbor.i, neighbor.j, self.i_objective, self.j_objective)
                     self.frontier.append(neighbor)
                     self.add_node(neighbor, current, new_cost)
 
     def is_in_visited(self, node):
+        """
+        Checks if node is in self.visited list
+        :param node:
+        :return:
+        """
         for element in self.visited:
             if node.i == element.i and node.j == element.j:
                 return True
         return False
 
     def is_lower(self, node, cost):
+        """
+        Checks if cost to node is lower than current cost
+        :param node:
+        :param cost:
+        :return:
+        """
         for element in self.costs:
             if node.i == element[0].i and node.j == element[0].j:
                 if cost < element[2]:
@@ -125,6 +143,13 @@ class Route:
         return False
 
     def add_node(self, node, comes_from, cost):
+        """
+        Adds new node to the list with the costs and previous for every node
+        :param node:
+        :param comes_from:
+        :param cost:
+        :return:
+        """
         for element in self.costs:
             if element[0].i == node.i and element[0].j == node.j:
                 element[1] = comes_from
@@ -134,13 +159,15 @@ class Route:
         self.costs.append(new_element)
 
     def cost_so_far(self, node):
+        """
+        Returns current cost so far to specific node
+        :param node:
+        :return:
+        """
         for element in self.costs:
             if element[0].i == node.i and element[0].j == node.j:
                 current_cost = element[2]
                 return current_cost
-
-    def heuristic(self, i1, j1, i2, j2):
-        return abs(i1 - i2) + abs(j1 - j2)
 
     def get_route(self, i, j, route):
         """
@@ -185,6 +212,35 @@ class Route:
                 if route[i+1][1] - route[i][1] < 0:
                     commands.append("left")
         return commands
+
+    def heuristic(self, i1, j1, i2, j2):
+        """
+        Calculates Manhattan distance between two points
+        :param i1:
+        :param j1:
+        :param i2:
+        :param j2:
+        :return:
+        """
+        return abs(i1 - i2) + abs(j1 - j2)
+
+    def add_to_frontier(self, node, priority):
+        """
+        Adds node to frontier list considering heuristic priority
+        :param node:
+        :param priority:
+        :return:
+        """
+        frontier_length = len(self.frontier)
+        if frontier_length == 0:
+            self.frontier.append([node, priority])
+        else:
+            for i in range(0, frontier_length):
+                if priority <= self.frontier[i][1]:
+                    self.frontier.insert(0, [node, priority])
+                else:
+                    self.frontier.append([node, priority])
+
 
     def get_commands(self):
         route = self.get_route(self.i_objective, self.j_objective, [])
