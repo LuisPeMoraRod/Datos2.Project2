@@ -118,9 +118,6 @@ class Board:
         route = Route(i0, j0, i1, j1)
         print(route.get_commands())
 
-
     def create_power_up(self, frame):
-
         if frame % 50000 == 0:
             PowerUp([0, 0], self.matrix)
-            print('\n')
