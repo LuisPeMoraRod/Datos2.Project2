@@ -191,8 +191,6 @@ class Route:
         commands = self.set_commands_list(route)
         return commands
 
-
-
     class Node:
         def __init__(self, i, j):
             self.i = i

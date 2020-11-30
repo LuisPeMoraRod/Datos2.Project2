@@ -1,10 +1,13 @@
+# Internal project imports
 import Matrix
-import pygame
 import Bomb
 import Block
-import random
 import GeneticAlgorithm
 import Route
+
+# External project imports
+import pygame
+import random
 import threading
 import time
 
@@ -15,13 +18,14 @@ TIME_BETWEEN_MOVEMENTS = 150
 class Player (pygame.sprite.Sprite):
     """
     Class for player objects.
+    Parent class of User and Enemy
     """
 
     def __init__(self, position, matrix):
         """
         Player constructor
-        :param position: list
-        :param matrix: Matrix
+        :param position: list -> initial position of the player
+        :param matrix: Matrix -> matrix where the player moves
         """
         super().__init__()
         # Position attributes
@@ -37,35 +41,44 @@ class Player (pygame.sprite.Sprite):
         self.has_shield = False
 
     def get_x(self):
+        """:return: current row"""
         return self.position[0]
 
     def get_y(self):
+        """:return: current column"""
         return self.position[1]
 
     def move_right(self):
         """
         Method that moves the player to the right in the matrix
+        :brief: If moving to the right is possible the player does it
+        :return: An string indicating if the player moved
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_j < Matrix.COLUMNS - 1:
-            return ""
-        if isinstance(self.matrix[pos_i][pos_j + 1], Matrix.Blank):
+            return "Out of bounds"
+        if isinstance(self.matrix[pos_i][pos_j+1], Matrix.Blank):
             self.matrix[pos_i][pos_j + 1] = self
             if self.new_bomb:
                 self.leave_bomb()
             else:
                 self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
             self.position[1] += 1
+            return "Moved"
+        elif isinstance(self.matrix[pos_i][pos_j+1], Block.Breakable):
+            return "Breakable"
 
     def move_left(self):
         """
         Method that moves the player to the left in the matrix
+        :brief: If moving to the left is possible the player does it
+        :return: An string indicating if the player moved
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_j > 0:
-            return ""
+            return "Out of bounds"
         if isinstance(self.matrix[pos_i][pos_j - 1], Matrix.Blank):
             self.matrix[pos_i][pos_j - 1] = self
             if self.new_bomb:
@@ -73,10 +86,15 @@ class Player (pygame.sprite.Sprite):
             else:
                 self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
             self.position[1] -= 1
+            return "Moved"
+        elif isinstance(self.matrix[pos_i][pos_j-1], Block.Breakable):
+            return "Breakable"
 
     def move_up(self):
         """
         Method that moves the player up in the matrix
+        :brief: If moving up is possible the player does it
+        :return: An string indicating if the player moved
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
@@ -96,11 +114,13 @@ class Player (pygame.sprite.Sprite):
     def move_down(self):
         """
         Method that moves the player down in the matrix
+        :brief: If moving down is possible the player does it
+        :return: An string indicating if the player moved
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_i < Matrix.ROWS - 1:
-            return ""
+            return "Out of bounds"
         if isinstance(self.matrix[pos_i + 1][pos_j], Matrix.Blank):
             self.matrix[pos_i + 1][pos_j] = self
             if self.new_bomb:
@@ -108,6 +128,9 @@ class Player (pygame.sprite.Sprite):
             else:
                 self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
             self.position[0] += 1
+            return "Moved"
+        elif isinstance(self.matrix[pos_i+1][pos_j], Block.Breakable):
+            return "Breakable"
 
     def leave_bomb(self):
         """
@@ -126,6 +149,11 @@ class User(Player):
     """
 
     def __init__(self, position, matrix):
+        """
+        User constructor, defines the main attributes
+        :param position: list -> initial position of the player
+        :param matrix: Matrix -> matrix where the player moves
+        """
         super().__init__(position, matrix)
         # User stats
         self.lives = 3
@@ -165,10 +193,15 @@ class User(Player):
 class Enemy(Player, threading.Thread):
     """
     Class of the enemy objects
-    Inherits from the player class
+    Inherits from the player class and the Thread class
     """
 
     def __init__(self, position, matrix):
+        """
+        Enemy constructor, defines the main attributes
+        :param position: list -> initial position of the player
+        :param matrix: Matrix -> matrix where the player moves
+        """
         super().__init__(position, matrix)
 
         def define_stats():
@@ -190,9 +223,16 @@ class Enemy(Player, threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        """
+        Override from the Thread class
+        :brief: allows the enemy to begin his thread
+        """
         self.choose_next_action()
 
     def choose_next_action(self):
+        """
+        Execute a new action from the genetic algorithm
+        """
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
         random_action = self.genetics.chromosome[random_number]
         if random_action == 0:
@@ -210,53 +250,70 @@ class Enemy(Player, threading.Thread):
             self.leave_enemy_bomb()
 
     def is_position_save(self, p_type, p_number):
+        """
+        Auxiliary method for the hide_enemy() method
+        :param p_type: defines the unpinned type (row or column)
+        :param p_number: defines the pinned row or column
+        :return: True if there is no in the current column or row
+        """
         if p_type == "row":
+            # Checks if theres a bomb in the current row
             for row in range(0, Matrix.COLUMNS-1):
                 if self.matrix[p_number][row] == "o":
                     return False
         elif p_type == "column":
+            # Checks if theres a bomb in the current column
             for column in range(0, Matrix.ROWS-1):
                 if self.matrix[column][p_number] == "o":
                     return False
         return True
 
     def hide_enemy(self):
+        """
+        Action that hides the enemy
+        :brief: if the enemy position is threatened by a possible
+        cross bomb, the enemy changes his row or column
+        """
         pos_i = self.get_x()
         pos_j = self.get_y()
         save_movement = []
         if pos_i % 2 == 0 and pos_j % 2 == 0:  # Even row and even column:
 
+            # The movement depends in if the row, column or both are threatened
             if not (self.is_position_save("row", pos_i) and self.is_position_save("column", pos_j)):
                 possible_movements = ["RRU", "RRD", "UUR", "UUL", "DDR", "DDL", "LLU", "LLD"]
-                save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+                save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
             elif not self.is_position_save("column", pos_j):
                 possible_movements = ["R", "L"]
-                save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+                save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
             elif not self.is_position_save("row", pos_i):
                 possible_movements = ["U", "D"]
-                save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+                save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
             else:
                 return
 
         elif pos_i % 2 == 1 and pos_j % 2 == 0:  # Odd row and even column
-
             if not self.is_position_save("column", pos_j):
                 possible_movements = ["UR", "UL", "DR", "DL"]
-                save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+                save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         elif pos_i % 2 == 0 and pos_j % 2 == 1:  # Even row and odd column
-
             if not self.is_position_save("column", pos_j):
                 possible_movements = ["RU", "RD", "LU", "LD"]
-                save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+                save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
-        if save_movement != []:
+        if save_movement != []:  # Empty list means that the actual position is safe
             print(save_movement)
             self.move_enemy_aux(save_movement)
         else:
             print("The actual position is a save one")
 
     def leave_enemy_bomb(self):
+        """
+        Action that leaves an enemy bomb
+        :brief: checks if it is safe to leave a bomb, if it is then
+        the enemy leaves the bomb and moves to the save position
+        """
         pos_i = self.get_x()
         pos_j = self.get_y()
         save_movement = []
@@ -264,25 +321,30 @@ class Enemy(Player, threading.Thread):
         # The movement depends on the position of the enemy
         if pos_i % 2 == 0 and pos_j % 2 == 0:  # Even row and even column
             possible_movements = ["RRU", "RRD", "UUR", "UUL", "DDR", "DDL", "LLU", "LLD"]
-            save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+            save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         elif pos_i % 2 == 1 and pos_j % 2 == 0:  # Odd row and even column
             possible_movements = ["UR", "UL", "DR", "DL"]
-            save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+            save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         elif pos_i % 2 == 0 and pos_j % 2 == 1:  # Even row and odd column
             possible_movements = ["RU", "RD", "LU", "LD"]
-            save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+            save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
-        if save_movement != []:
+        if save_movement != []:  # Empty list means that leaving a bomb is not save
             self.new_bomb = True
             self.move_enemy_aux(save_movement)
         else:
             print("Impossible to leave a bomb")
 
-    def enemy_bomb_case(self, p_pos_i, p_pos_j, p_possible_movements):
+    def possible_movement_cases(self, p_pos_i, p_pos_j, p_possible_movements):
+        """
+        Auxiliary method for the leave_enemy_bomb()
+        :brief: determines which of the possible movements is possible
+        """
         possible_movements = p_possible_movements
         result_route = []
+        # Checks every of the possible movements
         for movement in possible_movements:
             pos_i = p_pos_i
             pos_j = p_pos_j
@@ -333,9 +395,13 @@ class Enemy(Player, threading.Thread):
         return result_route
 
     def search_a_power_up(self):
+        """
+        Action that searches the closest power up
+        :brief: given the closest power up the method
+        uses the A* algorithm to move towards it
+        """
         closest_power_up_position = self.find_closest_object("chsz") # chsz are all the possible power ups
         if closest_power_up_position == []:
-            print("No hay power ups")
             return
         enemy_i = self.get_x()
         enemy_j = self.get_y()
@@ -345,6 +411,11 @@ class Enemy(Player, threading.Thread):
         self.move_enemy_aux(a_star_route.get_commands())
 
     def search_an_enemy(self):
+        """
+        Action that seraches the closest player
+        :brief: given the closest player (enemy or user)
+        the method uses A* algorithm to move towards it
+        """
         closest_enemy_position = self.find_closest_object("eu")  # "eu" means enemy or user
         if closest_enemy_position == []:
             self.choose_next_action()
@@ -356,6 +427,9 @@ class Enemy(Player, threading.Thread):
         self.move_enemy_aux(a_star_route.get_commands())
 
     def move_enemy_aux(self, movement_list):
+        """
+        Auxiliary method for moving based on the A* result
+        """
         for movement in movement_list:
             time.sleep(1)
             message = ""
