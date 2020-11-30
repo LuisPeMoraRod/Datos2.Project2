@@ -4,6 +4,9 @@ import Bomb
 import random
 import GeneticAlgorithm
 import Route
+import threading
+import _thread
+import time
 
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
@@ -156,7 +159,7 @@ class User(Player):
         self.last_movement_time = actual_time
 
 
-class Enemy(Player):
+class Enemy(Player, threading.Thread):
     """
     Class of the enemy objects
     Inherits from the player class
@@ -181,6 +184,10 @@ class Enemy(Player):
 
         # Genetics
         self.genetics = GeneticAlgorithm.GeneticAlgorithm()
+        threading.Thread.__init__(self)
+
+    def run(self):
+        self.choose_next_action()
 
     def choose_next_action(self):
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
@@ -194,23 +201,46 @@ class Enemy(Player):
             pass
         elif random_action == 2:
             # Search an enemy
-            closest_enemy_position = self.find_closest_object("eu")  # "eu" means enemy or user
-            print("The closest object for: " + "[" + str(self.get_x()) + "," + str(self.get_y()) + "] is: ")
-            print(closest_enemy_position)
-            enemy_i = self.get_x()
-            print(enemy_i)
-            enemy_j = self.get_y()
-            print(enemy_j)
-            target_i = closest_enemy_position[0]
-            print(target_i)
-            target_j = closest_enemy_position[1]
-            print(target_j)
-
-            a_star_route = Route.Route(0, 8, 3, 8)
-            print(a_star_route.get_commands())
+            self.search_an_enemy()
         elif random_action == 3:
             # Leave a bomb
             pass
+
+    def search_an_enemy(self):
+        closest_enemy_position = self.find_closest_object("eu")  # "eu" means enemy or user
+        print("The closest object for: " + "[" + str(self.get_x()) + "," + str(self.get_y()) + "] is: ")
+        print(closest_enemy_position)
+        enemy_i = self.get_x()
+        print(enemy_i)
+        enemy_j = self.get_y()
+        print(enemy_j)
+        target_i = closest_enemy_position[0]
+        print(target_i)
+        target_j = closest_enemy_position[1]
+        print(target_j)
+        a_star_route = Route.Route(enemy_i, enemy_j, target_i, target_j)
+        print(a_star_route.get_commands())
+        self.move_enemy_aux(a_star_route.get_commands())
+
+    def move_enemy_aux(self, movement_list):
+        for movement in movement_list:
+            time.sleep(1)
+            if movement == "up":
+                print("Moving up")
+                self.move_up()
+                pass
+            elif movement == "down":
+                print("Moving down")
+                self.move_down()
+                pass
+            elif movement == "right":
+                print("Moving right")
+                self.move_right()
+                pass
+            elif movement == "left":
+                print("Moving left")
+                self.move_left()
+                pass
 
     def __str__(self):
         """
@@ -223,7 +253,11 @@ class Enemy(Player):
         """
         Method that reads the enemy movements based on the genetic algorithm
         """
-        self.choose_next_action()
+        #self.enemy_thread = threading.Thread(target=self.choose_next_action())
+        #self.enemy_thread.start()
+        #_thread.start_new_thread(self.choose_next_action(), ())
+        #self.choose_next_action()
+        self.start()
 
     def find_closest_object(self, object_str):
         """

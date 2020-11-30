@@ -6,11 +6,13 @@ from Bomb import *
 
 
 class Route:
-    frontier = []
-    visited = []
-    costs = []
+
 
     def __init__(self, i_start, j_start, i_objective, j_objective):
+        self.frontier = []
+        self.visited = []
+        self.costs = []
+
         self.start = self.Node(i_start, j_start)
         self.frontier.append(self.start)
         self.add_node(self.start, None, 0)
