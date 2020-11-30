@@ -1,11 +1,11 @@
 import Matrix
 import pygame
 import Bomb
+import Block
 import random
 import GeneticAlgorithm
 import Route
 import threading
-import _thread
 import time
 
 # Constants
@@ -81,7 +81,7 @@ class Player (pygame.sprite.Sprite):
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_i > 0:
-            return ""
+            return "Out of bounds"
         if isinstance(self.matrix[pos_i - 1][pos_j], Matrix.Blank):
             self.matrix[pos_i - 1][pos_j] = self
             if self.new_bomb:
@@ -89,6 +89,9 @@ class Player (pygame.sprite.Sprite):
             else:
                 self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
             self.position[0] -= 1
+            return "Moved"
+        elif isinstance(self.matrix[pos_i - 1][pos_j], Block.Breakable):
+            return "Breakable"
 
     def move_down(self):
         """
@@ -192,7 +195,7 @@ class Enemy(Player, threading.Thread):
     def choose_next_action(self):
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
         random_action = self.genetics.chromosome[random_number]
-        random_action = 2
+        random_action = 3
         if random_action == 0:
             # Hide action
             pass
@@ -204,42 +207,109 @@ class Enemy(Player, threading.Thread):
             self.search_an_enemy()
         elif random_action == 3:
             # Leave a bomb
+            self.leave_enemy_bomb()
             pass
+
+    def leave_enemy_bomb(self):
+        pos_i = self.get_x()
+        pos_j = self.get_y()
+        save_movement = []
+
+        # The movement depends on the position of the enemy
+        if pos_i%2 == 0 and pos_j%2 == 0:  # Even row and even column
+            possible_movements = ["RRU", "RRD", "UUR", "UUL", "DDR", "DDL", "LLU", "LLD"]
+            save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+
+        elif pos_i%2 == 1 and pos_j%2 == 0:  # Odd row and even column
+            possible_movements = ["UR", "UL", "DR", "DL"]
+            save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+
+        elif pos_i%2 == 0 and pos_j%2 == 1:  # Even row and odd column
+            possible_movements = ["RU", "RD", "LU", "LD"]
+            save_movement = self.enemy_bomb_case(pos_i, pos_j, possible_movements)
+
+        if save_movement != []:
+            self.new_bomb = True
+        self.move_enemy_aux(save_movement)
+
+    def enemy_bomb_case(self, p_pos_i, p_pos_j, p_possible_movements):
+        possible_movements = p_possible_movements
+        result_route = []
+        for movement in possible_movements:
+            pos_i = p_pos_i
+            pos_j = p_pos_j
+            result_route_aux = []
+            for letter in movement:
+                if letter == "R":
+                    if not pos_j+1 < Matrix.COLUMNS:
+                        result_route_aux.clear()
+                        break
+                    if isinstance(self.matrix[pos_i][pos_j+1], Matrix.Blank):
+                        pos_j += 1
+                        result_route_aux.append("right")
+                    else:
+                        result_route_aux.clear()
+                        break
+                elif letter == "U":
+                    if not pos_i - 1 >= 0:
+                        result_route_aux.clear()
+                        break
+                    if isinstance(self.matrix[pos_i-1][pos_j], Matrix.Blank):
+                        pos_i -= 1
+                        result_route_aux.append("up")
+                    else:
+                        result_route_aux.clear()
+                        break
+                elif letter == "D":
+                    if not pos_i+1 < Matrix.ROWS:
+                        result_route_aux.clear()
+                        break
+                    if isinstance(self.matrix[pos_i+1][pos_j], Matrix.Blank):
+                        pos_i += 1
+                        result_route_aux.append("down")
+                    else:
+                        result_route_aux.clear()
+                        break
+                elif letter == "L":
+                    if not pos_j-1 >= 0:
+                        result_route_aux.clear()
+                        break
+                    if isinstance(self.matrix[pos_i][pos_j-1], Matrix.Blank):
+                        pos_j -= 1
+                        result_route_aux.append("left")
+                    else:
+                        result_route_aux.clear()
+                        break
+            if result_route_aux != []:
+                result_route = result_route_aux
+        return result_route
+
+
 
     def search_an_enemy(self):
         closest_enemy_position = self.find_closest_object("eu")  # "eu" means enemy or user
-        print("The closest object for: " + "[" + str(self.get_x()) + "," + str(self.get_y()) + "] is: ")
-        print(closest_enemy_position)
         enemy_i = self.get_x()
-        print(enemy_i)
         enemy_j = self.get_y()
-        print(enemy_j)
         target_i = closest_enemy_position[0]
-        print(target_i)
         target_j = closest_enemy_position[1]
-        print(target_j)
         a_star_route = Route.Route(enemy_i, enemy_j, target_i, target_j)
-        print(a_star_route.get_commands())
         self.move_enemy_aux(a_star_route.get_commands())
 
     def move_enemy_aux(self, movement_list):
         for movement in movement_list:
             time.sleep(1)
+            message = ""
             if movement == "up":
-                print("Moving up")
-                self.move_up()
-                pass
+                message = self.move_up()
             elif movement == "down":
-                print("Moving down")
-                self.move_down()
-                pass
+                message = self.move_down()
             elif movement == "right":
-                print("Moving right")
-                self.move_right()
-                pass
+                message = self.move_right()
             elif movement == "left":
-                print("Moving left")
-                self.move_left()
+                message = self.move_left()
+
+            if message == "Breakable":
+                # Add a bomb and hide
                 pass
 
     def __str__(self):
@@ -253,10 +323,6 @@ class Enemy(Player, threading.Thread):
         """
         Method that reads the enemy movements based on the genetic algorithm
         """
-        #self.enemy_thread = threading.Thread(target=self.choose_next_action())
-        #self.enemy_thread.start()
-        #_thread.start_new_thread(self.choose_next_action(), ())
-        #self.choose_next_action()
         self.start()
 
     def find_closest_object(self, object_str):
@@ -290,4 +356,3 @@ class Enemy(Player, threading.Thread):
                 min_position = position
                 min_distance = manhattan_distance
         return min_position
-
