@@ -235,6 +235,7 @@ class Enemy(Player, threading.Thread):
         """
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
         random_action = self.genetics.chromosome[random_number]
+        random_action = 2
         if random_action == 0:
             # Hide action
             self.hide_enemy()
@@ -320,15 +321,20 @@ class Enemy(Player, threading.Thread):
 
         # The movement depends on the position of the enemy
         if pos_i % 2 == 0 and pos_j % 2 == 0:  # Even row and even column
+            first_aux_movement = self.define_auxiliary_movements("row")
+            second_aux_movement = self.define_auxiliary_movements("column")
             possible_movements = ["RRU", "RRD", "UUR", "UUL", "DDR", "DDL", "LLU", "LLD"]
+            possible_movements += first_aux_movement + second_aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         elif pos_i % 2 == 1 and pos_j % 2 == 0:  # Odd row and even column
-            possible_movements = ["UR", "UL", "DR", "DL"]
+            aux_movement = self.define_auxiliary_movements("column")
+            possible_movements = ["UR", "UL", "DR", "DL"] + aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         elif pos_i % 2 == 0 and pos_j % 2 == 1:  # Even row and odd column
-            possible_movements = ["RU", "RD", "LU", "LD"]
+            aux_movement = self.define_auxiliary_movements("row")
+            possible_movements = ["RU", "RD", "LU", "LD"] + aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         if save_movement != []:  # Empty list means that leaving a bomb is not save
@@ -336,6 +342,28 @@ class Enemy(Player, threading.Thread):
             self.move_enemy_aux(save_movement)
         else:
             print("Impossible to leave a bomb")
+
+    def define_auxiliary_movements(self, p_type):
+        """
+        Defines the auxiliary movements that the enemy
+        con do to avoid the bombs when adding one
+        :return: a list with the auxiliary movements
+        """
+        auxiliary_movements = []
+        first_movement = ""
+        second_movement = ""
+        if self.has_cross_bomb:
+            return auxiliary_movements
+        for count in range(0, self.explosion_radius):
+            if p_type == "row":
+                first_movement += 'R'
+                second_movement += 'L'
+            elif p_type == "column":
+                first_movement += 'U'
+                second_movement += 'D'
+        auxiliary_movements.append(first_movement)
+        auxiliary_movements.append(second_movement)
+        return auxiliary_movements
 
     def possible_movement_cases(self, p_pos_i, p_pos_j, p_possible_movements):
         """
@@ -400,7 +428,7 @@ class Enemy(Player, threading.Thread):
         :brief: given the closest power up the method
         uses the A* algorithm to move towards it
         """
-        closest_power_up_position = self.find_closest_object("chsz") # chsz are all the possible power ups
+        closest_power_up_position = self.find_closest_object("chsz")  # chsz are all the possible power ups
         if closest_power_up_position == []:
             return
         enemy_i = self.get_x()
@@ -412,7 +440,7 @@ class Enemy(Player, threading.Thread):
 
     def search_an_enemy(self):
         """
-        Action that seraches the closest player
+        Action that searches the closest player
         :brief: given the closest player (enemy or user)
         the method uses A* algorithm to move towards it
         """
