@@ -58,6 +58,9 @@ class MainWindow:
             # Random power up creation
             board.create_power_up(frame)
 
+            # Put out fire blocks
+            board.put_out_fire(frame)
+
             frame += 1
 
             pygame.display.flip()

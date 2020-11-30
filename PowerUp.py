@@ -1,6 +1,7 @@
 import random
 import Player
 import Matrix
+from GUI import Board
 from Block import *
 from Fire import *
 
@@ -83,46 +84,60 @@ class CrossBomb(PowerUp):
 
         for i in range(pos_i, -1, -1): # Vertical up explosion
 
-            print(str(i) + "," + str(pos_j))
-
-            if isinstance(self.matrix[pos_i][i], Matrix.Blank) or \
-               isinstance(self.matrix[pos_i][i], Breakable) or \
-               isinstance(self.matrix[pos_i][i], Player.User) or \
-               isinstance(self.matrix[pos_i][i], Player.Enemy) or \
-               isinstance(self.matrix[pos_i][i], CrossBomb) or \
-               isinstance(self.matrix[pos_i][i], Healing) or \
-               isinstance(self.matrix[pos_i][i], Shield) or \
-               isinstance(self.matrix[pos_i][i], Shoe):
+            if isinstance(self.matrix[i][pos_j], Fire):
+                pass
+            elif not isinstance(self.matrix[i][pos_j], Matrix.Unbreakable):
                 self.matrix[i][pos_j] = Fire((i, pos_j), self.matrix)
-            elif isinstance(self.matrix[i][pos_j], Matrix.Unbreakable):
-                print("Unbreakable")
+            else:
                 break
 
-        print("")
+            """
+            if isinstance(self.matrix[i][pos_j], Matrix.Blank) or \
+               isinstance(self.matrix[i][pos_j], Breakable) or \
+               isinstance(self.matrix[i][pos_j], Player.User) or \
+               isinstance(self.matrix[i][pos_j], Player.Enemy) or \
+               isinstance(self.matrix[i][pos_j], CrossBomb) or \
+               isinstance(self.matrix[i][pos_j], Healing) or \
+               isinstance(self.matrix[i][pos_j], Shield) or \
+               isinstance(self.matrix[i][pos_j], Shoe):
+                self.matrix[i][pos_j] = Fire((i, pos_j), self.matrix)
+            elif isinstance(self.matrix[i][pos_j], Matrix.Unbreakable):
+                break
+            """
 
         for j in range(pos_i, ROWS): # Vertical down explosion
 
-            print(str(j) + "," + str(pos_j))
-
-            if isinstance(self.matrix[pos_i][j], Matrix.Blank) or \
-               isinstance(self.matrix[pos_i][j], Breakable) or \
-               isinstance(self.matrix[pos_i][j], Player.User) or \
-               isinstance(self.matrix[pos_i][j], Player.Enemy) or \
-               isinstance(self.matrix[pos_i][j], CrossBomb) or \
-               isinstance(self.matrix[pos_i][j], Healing) or \
-               isinstance(self.matrix[pos_i][j], Shield) or \
-               isinstance(self.matrix[pos_i][j], Shoe):
+            if isinstance(self.matrix[j][pos_j], Fire):
+                pass
+            elif not isinstance(self.matrix[j][pos_j], Matrix.Unbreakable):
                 self.matrix[j][pos_j] = Fire((j, pos_j), self.matrix)
-            elif isinstance(self.matrix[j][pos_j], Matrix.Unbreakable):
-                print("Unbreakable")
+            else:
                 break
 
-        print("")
+            """
+            if isinstance(self.matrix[j][pos_j], Matrix.Blank) or \
+               isinstance(self.matrix[j][pos_j], Breakable) or \
+               isinstance(self.matrix[j][pos_j], Player.User) or \
+               isinstance(self.matrix[j][pos_j], Player.Enemy) or \
+               isinstance(self.matrix[j][pos_j], CrossBomb) or \
+               isinstance(self.matrix[j][pos_j], Healing) or \
+               isinstance(self.matrix[j][pos_j], Shield) or \
+               isinstance(self.matrix[j][pos_j], Shoe):
+                self.matrix[j][pos_j] = Fire((j, pos_j), self.matrix)
+            elif isinstance(self.matrix[j][pos_j], Matrix.Unbreakable):
+                break
+            """
 
         for k in range(pos_j, -1, -1): # Horizontal left explosion
 
-            print(str(pos_i) + "," + str(k))
+            if isinstance(self.matrix[pos_i][k], Fire):
+                pass
+            elif not isinstance(self.matrix[pos_i][k], Matrix.Unbreakable):
+                self.matrix[pos_i][k] = Fire((pos_i, k), self.matrix)
+            else:
+                break
 
+            """
             if isinstance(self.matrix[pos_i][k], Matrix.Blank) or \
                isinstance(self.matrix[pos_i][k], Breakable) or \
                isinstance(self.matrix[pos_i][k], Player.User) or \
@@ -133,15 +148,19 @@ class CrossBomb(PowerUp):
                isinstance(self.matrix[pos_i][k], Shoe):
                 self.matrix[pos_i][k] = Fire((pos_i, k), self.matrix)
             elif isinstance(self.matrix[pos_i][k], Matrix.Unbreakable):
-                print("Unbreakable")
                 break
-
-        print("")
+            """
 
         for l in range(pos_j, COLUMNS): # Horizontal right explosion
 
-            print(str(pos_i) + "," + str(l))
+            if isinstance(self.matrix[pos_i][l], Fire):
+                pass
+            elif not isinstance(self.matrix[pos_i][l], Matrix.Unbreakable):
+                self.matrix[pos_i][l] = Fire((pos_i, l), self.matrix)
+            else:
+                break
 
+            """
             if isinstance(self.matrix[pos_i][l], Matrix.Blank) or \
                isinstance(self.matrix[pos_i][l], Breakable) or \
                isinstance(self.matrix[pos_i][l], Player.User) or \
@@ -152,33 +171,8 @@ class CrossBomb(PowerUp):
                isinstance(self.matrix[pos_i][l], Shoe):
                 self.matrix[pos_i][l] = Fire((pos_i, l), self.matrix)
             elif isinstance(self.matrix[pos_i][l], Matrix.Unbreakable):
-                print("Unbreakable")
                 break
-
-        print("")
-
-    """
-
-
-        for j in range(0, ROWS): # Horizontal explosion
-
-            if isinstance(self.matrix[pos_i][j], Blank) or \
-               isinstance(self.matrix[pos_i][j], Breakable) or \
-               isinstance(self.matrix[pos_i][j], Player) or \
-               isinstance(self.matrix[pos_i][j], Enemy):
-
-                self.matrix[pos_i][j] = Fire((pos_i, j), self.matrix)
-
-        for i in range(0, COLUMNS): # Vertical explosion
-
-            if isinstance(self.matrix[i][pos_j], Blank) or \
-               isinstance(self.matrix[i][pos_j], Breakable) or \
-               isinstance(self.matrix[i][pos_j], Player) or \
-               isinstance(self.matrix[i][pos_j], Enemy):
-
-                self.matrix[i][pos_j] = Fire((i, pos_j), self.matrix)
-                
-    """
+            """
 
     def __str__(self):
 
@@ -204,11 +198,7 @@ class Healing(PowerUp):
         :return: void
         """
 
-        print("live" + str(player.lives))
-
         player.lives += 1  # one is OK or should be better more of them
-
-        print("live" + str(player.lives))
 
     def __str__(self):
 
@@ -230,11 +220,12 @@ class Shield(PowerUp):
 
     def activate(self, player):
 
-        print("sheld" + str(player.shield))
+        """
+        Method that activates user o enemy shield
+        :return: void
+        """
 
         player.shield = True
-
-        print("sheld" + str(player.shield))
 
     def __str__(self):
 
@@ -256,12 +247,12 @@ class Shoe(PowerUp):
 
     def activate(self, player):
 
-        # change bomb position in the matrix
-        print("shoe" + str(player.shoe))
+        """
+        Method that activates user o enemy shoe
+        :return: void
+        """
 
         player.shoe = True
-
-        print("shoe" + str(player.shoe))
 
     def __str__(self):
 

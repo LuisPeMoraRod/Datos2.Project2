@@ -23,7 +23,6 @@ BLOCK_SIZE = 50
 ROWS = 12
 COLUMNS = 18
 
-
 class Board:
 
     __instance = None
@@ -128,11 +127,132 @@ class Board:
 
     def create_power_up(self, frame):
 
+        """
+        Method that spreads the power ups randomly in the matrix
+        :param frame
+        :return: void
+        """
+
         # 6000 approximately every 14 secs
         # 9000 approximately every 24 secs
         # 12000 approximately 30 secs
         if frame % 500 == 0:
 
             power_up = PowerUp([0, 0], self.matrix)
-            print('\n')
-            print('new power up')
+
+    def put_out_fire(self, frame):
+
+        """
+        Method that changes fire objects to blank objects after a explosion
+        :param frame
+        :return: void
+        """
+
+        row = self.matrix.user.get_x()
+        column = self.matrix.user.get_y()
+
+        if frame % 1000 == 0:
+
+            if self.matrix.user.cross_bomb == True:
+
+                for i in range(0, ROWS): # Vertical change
+
+                    if isinstance(self.board_matrix[i][column], Fire):
+                        self.board_matrix[i][column] = Matrix.Blank((i, column))
+                        self.reduce_enemy_live(row, column)
+
+                for j in range(0, COLUMNS): # Horizontal change
+
+                    if isinstance(self.board_matrix[row][j], Fire):
+                        self.board_matrix[row][j] = Matrix.Blank((row, j))
+                        self.reduce_enemy_live(row, column)
+
+                self.matrix.user.cross_bomb_time = 0
+                self.matrix.user.cross_bomb = False
+                self.return_enemies()
+
+    def return_enemies(self):
+
+        """
+        Method that returns the enemies to the matrix after a cross bomb power up
+        :return: void
+        """
+
+        x = self.matrix.enemy0.get_x()
+        y = self.matrix.enemy0.get_y()
+        self.board_matrix[x][y] = self.matrix.enemy0
+
+        x = self.matrix.enemy1.get_x()
+        y = self.matrix.enemy1.get_y()
+        self.board_matrix[x][y] = self.matrix.enemy1
+
+        x = self.matrix.enemy2.get_x()
+        y = self.matrix.enemy2.get_y()
+        self.board_matrix[x][y] = self.matrix.enemy2
+
+        x = self.matrix.enemy3.get_x()
+        y = self.matrix.enemy3.get_y()
+        self.board_matrix[x][y] = self.matrix.enemy3
+
+        x = self.matrix.enemy4.get_x()
+        y = self.matrix.enemy4.get_y()
+        self.board_matrix[x][y] = self.matrix.enemy4
+
+        x = self.matrix.enemy5.get_x()
+        y = self.matrix.enemy5.get_y()
+        self.board_matrix[x][y] = self.matrix.enemy5
+
+        x = self.matrix.enemy6.get_x()
+        y = self.matrix.enemy6.get_y()
+        self.board_matrix[x][y] = self.matrix.enemy6
+
+    def reduce_enemy_live(self, row, column):
+
+        """
+        Method that decreases enemies live when a bomb touches them
+        :param row
+        :param column
+        :return: void
+        """
+
+        x = self.matrix.enemy0.get_x()
+        y = self.matrix.enemy0.get_y()
+
+        if x == row and y == column:
+            self.matrix.enemy0.lives -= 1
+
+        x = self.matrix.enemy1.get_x()
+        y = self.matrix.enemy1.get_y()
+
+        if x == row and y == column:
+            self.matrix.enemy1.lives -= 1
+
+        x = self.matrix.enemy2.get_x()
+        y = self.matrix.enemy2.get_y()
+
+        if x == row and y == column:
+            self.matrix.enemy2.lives -= 1
+
+        x = self.matrix.enemy3.get_x()
+        y = self.matrix.enemy3.get_y()
+
+        if x == row and y == column:
+            self.matrix.enemy3.lives -= 1
+
+        x = self.matrix.enemy4.get_x()
+        y = self.matrix.enemy4.get_y()
+
+        if x == row and y == column:
+            self.matrix.enemy4.lives -= 1
+
+        x = self.matrix.enemy5.get_x()
+        y = self.matrix.enemy5.get_y()
+
+        if x == row and y == column:
+            self.matrix.enemy5.lives -= 1
+
+        x = self.matrix.enemy6.get_x()
+        y = self.matrix.enemy6.get_y()
+
+        if x == row and y == column:
+            self.matrix.enemy6.lives -= 1

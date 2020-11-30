@@ -78,6 +78,7 @@ class Player (pygame.sprite.Sprite):
             self.position[1] += 1
             cross_bomb = CrossBomb((pos_i, pos_j + 1), self.matrix)
             cross_bomb.activate(player)
+            player.cross_bomb = True
             self.matrix[pos_i][pos_j + 1] = self
 
         elif isinstance(self.matrix[pos_i][pos_j + 1], Healing):
@@ -129,6 +130,7 @@ class Player (pygame.sprite.Sprite):
             self.position[1] -= 1
             cross_bomb = CrossBomb((pos_i, pos_j - 1), self.matrix)
             cross_bomb.activate(player)
+            player.cross_bomb = True
             self.matrix[pos_i][pos_j - 1] = self
 
         elif isinstance(self.matrix[pos_i][pos_j - 1], Healing):
@@ -180,6 +182,7 @@ class Player (pygame.sprite.Sprite):
             self.position[0] -= 1
             cross_bomb = CrossBomb((pos_i - 1, pos_j), self.matrix)
             cross_bomb.activate(player)
+            player.cross_bomb = True
             self.matrix[pos_i - 1][pos_j] = self
 
         elif isinstance(self.matrix[pos_i - 1][pos_j], Healing):
@@ -231,6 +234,7 @@ class Player (pygame.sprite.Sprite):
             self.position[0] += 1
             cross_bomb = CrossBomb((pos_i + 1, pos_j), self.matrix)
             cross_bomb.activate(player)
+            player.cross_bomb = True
             self.matrix[pos_i + 1][pos_j] = self
 
         elif isinstance(self.matrix[pos_i + 1][pos_j], Healing):
