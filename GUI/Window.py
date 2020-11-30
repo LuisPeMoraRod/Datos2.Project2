@@ -33,6 +33,7 @@ class MainWindow:
         screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
         pygame.display.set_caption('BomberTEC')
         board = Board.get_instance()
+        board.enemies.update()
 
         # Frame quantity
         frame = 0
@@ -46,7 +47,7 @@ class MainWindow:
                     pygame.quit()
                     sys.exit()
 
-            board.players.update()
+            board.users.update()
 
             # Random power up creation
             board.create_power_up(frame)
