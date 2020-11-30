@@ -207,7 +207,7 @@ class Enemy(Player, threading.Thread):
         def define_stats():
             lives = random.randrange(3, 6)
             velocity = random.randrange(5, 7)
-            explosion_radius = random.randrange(1, 4)
+            explosion_radius = random.randrange(1, 3)
             evasion = 14 - lives - velocity - explosion_radius
             stats = [lives, velocity, explosion_radius, evasion]
             return stats
@@ -329,11 +329,14 @@ class Enemy(Player, threading.Thread):
 
         elif pos_i % 2 == 1 and pos_j % 2 == 0:  # Odd row and even column
             aux_movement = self.define_auxiliary_movements("column")
+            print(aux_movement)
             possible_movements = ["UR", "UL", "DR", "DL"] + aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         elif pos_i % 2 == 0 and pos_j % 2 == 1:  # Even row and odd column
             aux_movement = self.define_auxiliary_movements("row")
+            print(aux_movement)
+
             possible_movements = ["RU", "RD", "LU", "LD"] + aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
@@ -354,7 +357,7 @@ class Enemy(Player, threading.Thread):
         second_movement = ""
         if self.has_cross_bomb:
             return auxiliary_movements
-        for count in range(0, self.explosion_radius):
+        for count in range(0, self.explosion_radius+1):
             if p_type == "row":
                 first_movement += 'R'
                 second_movement += 'L'
