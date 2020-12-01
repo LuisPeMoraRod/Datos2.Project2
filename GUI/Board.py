@@ -27,6 +27,10 @@ class Board:
     board_matrix = matrix.get_matrix()
     users = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
+    enable_up = True
+    enable_down = True
+    enable_left = True
+    enable_right = True
 
     @staticmethod
     def get_instance():
@@ -88,15 +92,16 @@ class Board:
                         detonate_bomb = j.detonate()
                         if detonate_bomb:
                             for k in range(1, j.radius):
-                                if row - k > 0:
-                                    self.create_fire((j.position[0] - k, column))
-                                if row + k < ROWS:
-                                    self.create_fire((j.position[0] + k, column))
-                                if column - k > 0:
-                                    self.create_fire((row, j.position[1] - k))
-                                if column + k < COLUMNS:
-                                    self.create_fire((row, j.position[1] + k))
+                                if row - k > 0 and self.enable_up:
+                                    self.enable_up = self.create_fire((j.position[0] - k, column))
+                                if row + k < ROWS and self.enable_right:
+                                    self.enable_down = self.create_fire((j.position[0] + k, column))
+                                if column - k > 0 and self.enable_left:
+                                    self.enable_left = self.create_fire((row, j.position[1] - k))
+                                if column + k < COLUMNS and self.enable_right:
+                                    self.enable_right = self.create_fire((row, j.position[1] + k))
                             self.board_matrix[row][column] = Fire((row, column))
+                        self.restart_enables()
                     elif isinstance(j, Shoe):
                         power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, PURPLE, power_up)
@@ -155,9 +160,18 @@ class Board:
         element = self.board_matrix[row][column]
 
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
-          self.board_matrix[row][column] = Fire(position)
+            self.board_matrix[row][column] = Fire(position)
+            return True
+        else:
+            return False
 
     def create_blank(self, position):
         row = position[0]
         column = position[1]
         self.board_matrix[row][column] = Blank((row, column))
+
+    def restart_enables(self):
+        self.enable_up = True
+        self.enable_right = True
+        self.enable_left = True
+        self.enable_down = True
