@@ -61,6 +61,8 @@ class Player (pygame.sprite.Sprite):
         :brief: If moving to the right is possible the player does it
         :return: An string indicating if the player moved
         """
+        if self.is_movement_denied:
+            return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_j < Matrix.COLUMNS - 1:
@@ -84,6 +86,8 @@ class Player (pygame.sprite.Sprite):
         :brief: If moving to the left is possible the player does it
         :return: An string indicating if the player moved
         """
+        if self.is_movement_denied:
+            return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_j > 0:
@@ -107,6 +111,8 @@ class Player (pygame.sprite.Sprite):
         :brief: If moving up is possible the player does it
         :return: An string indicating if the player moved
         """
+        if self.is_movement_denied:
+            return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_i > 0:
@@ -130,6 +136,8 @@ class Player (pygame.sprite.Sprite):
         :brief: If moving down is possible the player does it
         :return: An string indicating if the player moved
         """
+        if self.is_movement_denied:
+            return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_i < Matrix.ROWS - 1:
@@ -266,7 +274,7 @@ class Enemy(Player, threading.Thread):
         """
         if self.lives <= 0:
             return
-        random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
+        random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-2)
         random_action = self.genetics.chromosome[random_number]
         random_action = random.randint(1, 3)
         print("CHOOSE_NEXT_ACTION")
@@ -274,8 +282,8 @@ class Enemy(Player, threading.Thread):
             # Hide action
             print("Hide enemy")
             self.hide_enemy()
-            self.choose_next_action()
-            pass
+            #self.choose_next_action()
+
         elif random_action == 0:
             # Search power up
             self.search_a_power_up()
@@ -283,12 +291,13 @@ class Enemy(Player, threading.Thread):
             # Search an enemy
             print("Search enemy")
             self.search_an_enemy()
-            self.choose_next_action()
+            #self.choose_next_action()
         elif random_action == 3:
             # Leave a bomb
             print("Leave bomb")
             self.leave_enemy_bomb()
-            self.choose_next_action()
+            #self.choose_next_action()
+        self.choose_next_action()
 
     def is_position_save(self, p_type, p_number):
         """
@@ -504,8 +513,8 @@ class Enemy(Player, threading.Thread):
         for movement in movement_list:
             if self.lives <= 0:
                 return
-            while self.is_movement_denied:
-                pass
+            if self.is_movement_denied:
+                break
             time.sleep(1)
             message = ""
             if movement == "up":
