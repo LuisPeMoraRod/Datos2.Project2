@@ -94,7 +94,7 @@ class Board:
                             for k in range(1, j.radius):
                                 if row - k > 0 and self.enable_up:
                                     self.enable_up = self.create_fire((j.position[0] - k, column))
-                                if row + k < ROWS and self.enable_right:
+                                if row + k < ROWS and self.enable_down:
                                     self.enable_down = self.create_fire((j.position[0] + k, column))
                                 if column - k > 0 and self.enable_left:
                                     self.enable_left = self.create_fire((row, j.position[1] - k))
@@ -162,7 +162,7 @@ class Board:
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             self.board_matrix[row][column] = Fire(position)
             return True
-        else:
+        elif isinstance(element, Unbreakable) and isinstance(element, Bomb) and isinstance(Breakable):
             return False
 
     def create_blank(self, position):
