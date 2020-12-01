@@ -16,6 +16,7 @@ BLUE = (0, 168, 187)
 PURPLE = (108, 52, 131)
 PINK = (240, 54, 192)
 WHITE = (255, 255, 255)
+ORANGE = (230, 126, 34)
 BLOCK_SIZE = 50
 ROWS = 12
 COLUMNS = 18
@@ -51,7 +52,6 @@ class Board:
     def draw_base(self, SCREEN):
         pos_x = 5
         pos_y = 2
-
         for x in range(pos_x, COLUMNS + pos_x):
             for y in range(pos_y, ROWS + pos_y):
                 if x % 2 == 0:
@@ -72,7 +72,6 @@ class Board:
         y = 2
         row = 0
         column = 0
-
         for i in self.board_matrix:
             for j in i:
                 if not isinstance(j, Blank):
@@ -148,7 +147,7 @@ class Board:
 
         i1 = self.matrix.enemy3.get_x()
         j1 = self.matrix.enemy3.get_y()
-        route = Route(i0, j0, i1, j1)
+        #route = Route(i0, j0, i1, j1)
 
     def create_power_up(self, frame):
         if frame % 50000 == 0:

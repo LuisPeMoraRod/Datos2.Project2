@@ -3,6 +3,7 @@ import Player
 import Matrix
 from PowerUp import PowerUp
 from Bomb import *
+from Fire import Fire
 
 
 class Route:
@@ -50,7 +51,8 @@ class Route:
 
         try:
             if j - 1 >= 0:
-                if not isinstance(self.matrix[i][j-1], Unbreakable):
+                if not isinstance(self.matrix[i][j-1], Unbreakable) \
+                        and not isinstance(self.matrix[i][j-1], Fire):
                     neighbor = self.Node(i, j-1)
                     neighbors.append(neighbor)
         except:
@@ -58,21 +60,24 @@ class Route:
 
         try:
             if i - 1 >= 0:
-                if not isinstance(self.matrix[i-1][j], Unbreakable):
+                if not isinstance(self.matrix[i-1][j], Unbreakable) \
+                        and not isinstance(self.matrix[i-1][j], Fire):
                     neighbor = self.Node(i-1, j)
                     neighbors.append(neighbor)
         except:
             pass
 
         try:
-            if not isinstance(self.matrix[i][j+1], Unbreakable):
+            if not isinstance(self.matrix[i][j+1], Unbreakable) \
+                    and not isinstance(self.matrix[i][j+1], Fire):
                 neighbor = self.Node(i, j+1)
                 neighbors.append(neighbor)
         except:
             pass
 
         try:
-            if not isinstance(self.matrix[i+1][j], Unbreakable):
+            if not isinstance(self.matrix[i+1][j], Unbreakable) \
+                    and not isinstance(self.matrix[i+1][j], Fire):
                 neighbor = self.Node(i+1, j)
                 neighbors.append(neighbor)
         except:

@@ -4,6 +4,7 @@ import Bomb
 import Block
 import GeneticAlgorithm
 import Route
+import Fire
 
 # External project imports
 import pygame
@@ -259,7 +260,8 @@ class Enemy(Player, threading.Thread):
         """
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
         random_action = self.genetics.chromosome[random_number]
-        random_action = 2
+        random_action = random.randint(2,3)
+        print("CHOOSE_NEXT_ACTION")
         if random_action == 0:
             # Hide action
             self.hide_enemy()
@@ -270,9 +272,11 @@ class Enemy(Player, threading.Thread):
         elif random_action == 2:
             # Search an enemy
             self.search_an_enemy()
+            self.choose_next_action()
         elif random_action == 3:
             # Leave a bomb
             self.leave_enemy_bomb()
+            self.choose_next_action()
 
     def is_position_save(self, p_type, p_number):
         """
@@ -367,8 +371,9 @@ class Enemy(Player, threading.Thread):
         if save_movement != []:  # Empty list means that leaving a bomb is not save
             self.new_bomb = True
             self.move_enemy_aux(save_movement)
-        else:
-            print("Impossible to leave a bomb")
+            time.sleep(Fire.EXPLOSION_TIME / 1000)
+
+        return save_movement
 
     def define_auxiliary_movements(self, p_type):
         """
@@ -396,6 +401,7 @@ class Enemy(Player, threading.Thread):
         """
         Auxiliary method for the leave_enemy_bomb()
         :brief: determines which of the possible movements is possible
+        :return: result_route -> list of the movements
         """
         possible_movements = p_possible_movements
         result_route = []
@@ -478,8 +484,9 @@ class Enemy(Player, threading.Thread):
         enemy_j = self.get_y()
         target_i = closest_enemy_position[0]
         target_j = closest_enemy_position[1]
-        a_star_route = Route.Route(enemy_i, enemy_j, target_i, target_j)
-        self.move_enemy_aux(a_star_route.get_commands())
+        if isinstance(self, Enemy):
+            a_star_route = Route.Route(enemy_i, enemy_j, target_i, target_j)
+            self.move_enemy_aux(a_star_route.get_commands())
 
     def move_enemy_aux(self, movement_list):
         """
@@ -499,14 +506,28 @@ class Enemy(Player, threading.Thread):
 
             if message == "Breakable":
                 # Add a bomb and hide
-                self.leave_enemy_bomb()
-                """
-                Pending:
-                -> after leaving the bomb wait for it to explode
-                and then return to the actual position to continue the A*
-                -> analise the cases when the enemy hits another enemy or the user
-                """
-                break
+                movement_list = self.leave_enemy_bomb()
+                if movement_list == []:
+                    print("Movement list empty")
+                    break
+                return_route = self.get_back_to_position(movement_list) + [movement]
+                print(return_route)
+                self.move_enemy_aux(return_route)
+
+
+    def get_back_to_position(self, movement_list):
+        return_route = []
+        for movement in movement_list:
+            if movement == "right":
+                return_route.append("left")
+            elif movement == "left":
+                return_route.append("right")
+            elif movement == "up":
+                return_route.append("down")
+            elif movement == "down":
+                return_route.append("up")
+        return_route.reverse()
+        return return_route
 
     def __str__(self):
         """
