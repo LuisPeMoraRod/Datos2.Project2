@@ -75,6 +75,8 @@ class Player (pygame.sprite.Sprite):
             return "Moved"
         elif isinstance(self.matrix[pos_i][pos_j+1], Block.Breakable):
             return "Breakable"
+        else:
+            return "Abort movement"
 
     def move_left(self):
         """
@@ -96,6 +98,8 @@ class Player (pygame.sprite.Sprite):
             return "Moved"
         elif isinstance(self.matrix[pos_i][pos_j-1], Block.Breakable):
             return "Breakable"
+        else:
+            return "Abort movement"
 
     def move_up(self):
         """
@@ -117,6 +121,8 @@ class Player (pygame.sprite.Sprite):
             return "Moved"
         elif isinstance(self.matrix[pos_i - 1][pos_j], Block.Breakable):
             return "Breakable"
+        else:
+            return "Abort movement"
 
     def move_down(self):
         """
@@ -138,6 +144,8 @@ class Player (pygame.sprite.Sprite):
             return "Moved"
         elif isinstance(self.matrix[pos_i+1][pos_j], Block.Breakable):
             return "Breakable"
+        else:
+            return "Abort movement"
 
     def leave_bomb(self):
         """
@@ -152,12 +160,10 @@ class Player (pygame.sprite.Sprite):
         pos_i = self.get_x()
         pos_j = self.get_y()
         self.lives -= 1
-        self.matrix[pos_i][pos_j] = self
-        if self.lives == 0:
+        if self.lives <= 0:
             self.kill()
-            return
+            return None
         return self
-        print("YOU lOST A LIVE")
 
 
 class User(Player):
@@ -238,7 +244,7 @@ class Enemy(Player, threading.Thread):
             return stats
 
         enemy_stats = define_stats()
-        self.lives = enemy_stats[0]
+        self.lives = 2#enemy_stats[0]
         self.velocity = enemy_stats[1]*100
         self.explosion_radius = enemy_stats[2]
         self.evasion = enemy_stats[3]
@@ -258,23 +264,29 @@ class Enemy(Player, threading.Thread):
         """
         Execute a new action from the genetic algorithm
         """
+        if self.lives <= 0:
+            return
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
         random_action = self.genetics.chromosome[random_number]
-        random_action = random.randint(2,3)
+        random_action = random.randint(1, 3)
         print("CHOOSE_NEXT_ACTION")
-        if random_action == 0:
+        if random_action == 1:
             # Hide action
+            print("Hide enemy")
             self.hide_enemy()
+            self.choose_next_action()
             pass
-        elif random_action == 1:
+        elif random_action == 0:
             # Search power up
             self.search_a_power_up()
         elif random_action == 2:
             # Search an enemy
+            print("Search enemy")
             self.search_an_enemy()
             self.choose_next_action()
         elif random_action == 3:
             # Leave a bomb
+            print("Leave bomb")
             self.leave_enemy_bomb()
             self.choose_next_action()
 
@@ -332,7 +344,6 @@ class Enemy(Player, threading.Thread):
                 save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         if save_movement != []:  # Empty list means that the actual position is safe
-            print(save_movement)
             self.move_enemy_aux(save_movement)
         else:
             print("The actual position is a save one")
@@ -357,13 +368,11 @@ class Enemy(Player, threading.Thread):
 
         elif pos_i % 2 == 1 and pos_j % 2 == 0:  # Odd row and even column
             aux_movement = self.define_auxiliary_movements("column")
-            print(aux_movement)
             possible_movements = ["UR", "UL", "DR", "DL"] + aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         elif pos_i % 2 == 0 and pos_j % 2 == 1:  # Even row and odd column
             aux_movement = self.define_auxiliary_movements("row")
-            print(aux_movement)
 
             possible_movements = ["RU", "RD", "LU", "LD"] + aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
@@ -493,6 +502,10 @@ class Enemy(Player, threading.Thread):
         Auxiliary method for moving based on the A* result
         """
         for movement in movement_list:
+            if self.lives <= 0:
+                return
+            while self.is_movement_denied:
+                pass
             time.sleep(1)
             message = ""
             if movement == "up":
@@ -508,11 +521,11 @@ class Enemy(Player, threading.Thread):
                 # Add a bomb and hide
                 movement_list = self.leave_enemy_bomb()
                 if movement_list == []:
-                    print("Movement list empty")
                     break
                 return_route = self.get_back_to_position(movement_list) + [movement]
-                print(return_route)
                 self.move_enemy_aux(return_route)
+            elif message == "Abort movement":
+                break
 
 
     def get_back_to_position(self, movement_list):

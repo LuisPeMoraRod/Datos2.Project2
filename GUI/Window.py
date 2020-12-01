@@ -33,8 +33,13 @@ class MainWindow:
         screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
         pygame.display.set_caption('BomberTEC')
         board = Board.get_instance()
-        # board.enemies.update()
-        board.matrix.enemy1.update()
+        #board.enemies.update()
+        board.matrix.enemy0.update()
+        #board.matrix.enemy1.update()
+        #board.matrix.enemy2.update()
+        #board.matrix.enemy3.update()
+        #board.matrix.enemy4.update()
+
 
         # Frame quantity
         frame = 0
