@@ -136,6 +136,9 @@ class Player (pygame.sprite.Sprite):
     def set_bomb_radius(self, bomb_radius):
         self.bomb_radius = bomb_radius
 
+    def set_bomb_radius(self, bomb_radius):
+        self.bomb_radius = bomb_radius
+
     def leave_bomb(self):
         """
         Method that allows the player to leave a bomb where he is
