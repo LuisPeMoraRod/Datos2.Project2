@@ -162,7 +162,7 @@ class User(Player):
         # User stats
         self.lives = 3
         self.velocity = TIME_BETWEEN_MOVEMENTS
-        self.explosion_radius = 2
+        self.explosion_radius = 4
         self.set_bomb_radius(self.explosion_radius)
 
     def __str__(self):
