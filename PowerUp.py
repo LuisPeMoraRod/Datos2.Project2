@@ -16,7 +16,8 @@ class PowerUp:
     """
 
     #power_up_list = ['CrossBomb', 'Healing', 'Shield', 'Shoe']
-    power_up_list = ['CrossBomb', 'CrossBomb', 'CrossBomb', 'CrossBomb']
+    #power_up_list = ['CrossBomb', 'CrossBomb', 'CrossBomb', 'CrossBomb']
+    power_up_list = ['Shoe', 'Shoe', 'Shoe', 'Shoe']
 
     def __init__(self, position, matrix):
 
@@ -91,20 +92,6 @@ class CrossBomb(PowerUp):
             else:
                 break
 
-            """
-            if isinstance(self.matrix[i][pos_j], Matrix.Blank) or \
-               isinstance(self.matrix[i][pos_j], Breakable) or \
-               isinstance(self.matrix[i][pos_j], Player.User) or \
-               isinstance(self.matrix[i][pos_j], Player.Enemy) or \
-               isinstance(self.matrix[i][pos_j], CrossBomb) or \
-               isinstance(self.matrix[i][pos_j], Healing) or \
-               isinstance(self.matrix[i][pos_j], Shield) or \
-               isinstance(self.matrix[i][pos_j], Shoe):
-                self.matrix[i][pos_j] = Fire((i, pos_j), self.matrix)
-            elif isinstance(self.matrix[i][pos_j], Matrix.Unbreakable):
-                break
-            """
-
         for j in range(pos_i, ROWS): # Vertical down explosion
 
             if isinstance(self.matrix[j][pos_j], Fire):
@@ -113,20 +100,6 @@ class CrossBomb(PowerUp):
                 self.matrix[j][pos_j] = Fire((j, pos_j), self.matrix)
             else:
                 break
-
-            """
-            if isinstance(self.matrix[j][pos_j], Matrix.Blank) or \
-               isinstance(self.matrix[j][pos_j], Breakable) or \
-               isinstance(self.matrix[j][pos_j], Player.User) or \
-               isinstance(self.matrix[j][pos_j], Player.Enemy) or \
-               isinstance(self.matrix[j][pos_j], CrossBomb) or \
-               isinstance(self.matrix[j][pos_j], Healing) or \
-               isinstance(self.matrix[j][pos_j], Shield) or \
-               isinstance(self.matrix[j][pos_j], Shoe):
-                self.matrix[j][pos_j] = Fire((j, pos_j), self.matrix)
-            elif isinstance(self.matrix[j][pos_j], Matrix.Unbreakable):
-                break
-            """
 
         for k in range(pos_j, -1, -1): # Horizontal left explosion
 
@@ -137,20 +110,6 @@ class CrossBomb(PowerUp):
             else:
                 break
 
-            """
-            if isinstance(self.matrix[pos_i][k], Matrix.Blank) or \
-               isinstance(self.matrix[pos_i][k], Breakable) or \
-               isinstance(self.matrix[pos_i][k], Player.User) or \
-               isinstance(self.matrix[pos_i][k], Player.Enemy) or \
-               isinstance(self.matrix[pos_i][k], CrossBomb) or \
-               isinstance(self.matrix[pos_i][k], Healing) or \
-               isinstance(self.matrix[pos_i][k], Shield) or \
-               isinstance(self.matrix[pos_i][k], Shoe):
-                self.matrix[pos_i][k] = Fire((pos_i, k), self.matrix)
-            elif isinstance(self.matrix[pos_i][k], Matrix.Unbreakable):
-                break
-            """
-
         for l in range(pos_j, COLUMNS): # Horizontal right explosion
 
             if isinstance(self.matrix[pos_i][l], Fire):
@@ -159,20 +118,6 @@ class CrossBomb(PowerUp):
                 self.matrix[pos_i][l] = Fire((pos_i, l), self.matrix)
             else:
                 break
-
-            """
-            if isinstance(self.matrix[pos_i][l], Matrix.Blank) or \
-               isinstance(self.matrix[pos_i][l], Breakable) or \
-               isinstance(self.matrix[pos_i][l], Player.User) or \
-               isinstance(self.matrix[pos_i][l], Player.Enemy) or \
-               isinstance(self.matrix[pos_i][l], CrossBomb) or \
-               isinstance(self.matrix[pos_i][l], Healing) or \
-               isinstance(self.matrix[pos_i][l], Shield) or \
-               isinstance(self.matrix[pos_i][l], Shoe):
-                self.matrix[pos_i][l] = Fire((pos_i, l), self.matrix)
-            elif isinstance(self.matrix[pos_i][l], Matrix.Unbreakable):
-                break
-            """
 
     def __str__(self):
 

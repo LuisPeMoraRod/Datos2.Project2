@@ -12,6 +12,8 @@ from PowerUp import Shoe
 
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
+ROWS = 12
+COLUMNS = 18
 
 
 class Player (pygame.sprite.Sprite):
@@ -289,6 +291,103 @@ class Player (pygame.sprite.Sprite):
     def get_shoe(self):
         return self.cross_bomb
 
+    def check_bomb_direction(self):
+
+        """
+        Method that returns the specific direction of a bomb
+        """
+
+        pos_i = self.get_x()
+        pos_j = self.get_y()
+
+        if isinstance(self.matrix[pos_i - 1][pos_j], Bomb): # Up direction
+            return 'up'
+        elif isinstance(self.matrix[pos_i + 1][pos_j], Bomb): # Down direction
+            return 'down'
+        elif isinstance(self.matrix[pos_i][pos_j - 1], Bomb): # Left direction
+            return 'left'
+        elif isinstance(self.matrix[pos_i][pos_j + 1], Bomb): # Right direction
+            return 'right'
+        else:
+            return 'none'
+
+    def kick_bomb(self):
+
+        """
+        Method that moves away a bomb
+        """
+
+        direction = self.check_bomb_direction()
+
+        pos_i = self.get_x()
+        pos_j = self.get_y()
+
+        flag = False
+        n = 3
+
+        if direction == 'up':
+            pos_i -= 1
+
+            while flag == False:
+
+                if pos_i - n < 0:
+                    flag = True
+                elif isinstance(self.matrix[pos_i - n][pos_j], Matrix.Blank):
+                    self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+                    self.matrix[pos_i - n][pos_j] = Bomb((pos_i - n, pos_j), self.matrix)
+                    self.shoe = False
+                    flag = True
+                else:
+                    n += 1
+
+        elif direction == 'down':
+            pos_i += 1
+
+            while flag == False:
+
+                if pos_i + n > ROWS:
+                    flag = True
+                elif isinstance(self.matrix[pos_i + n][pos_j], Matrix.Blank):
+                    self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+                    self.matrix[pos_i + n][pos_j] = Bomb((pos_i + n, pos_j), self.matrix)
+                    self.shoe = False
+                    flag = True
+                else:
+                    n += 1
+
+        elif direction == 'left':
+            pos_j -= 1
+
+            while flag == False:
+
+                if pos_j - n < 0:
+                    flag = True
+                elif isinstance(self.matrix[pos_i][pos_j - n], Matrix.Blank):
+                    self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+                    self.matrix[pos_i][pos_j - n] = Bomb((pos_i, pos_j - n), self.matrix)
+                    self.shoe = False
+                    flag = True
+                else:
+                    n += 1
+
+        elif direction == 'right':
+            pos_j += 1
+
+            while flag == False:
+
+                if pos_j + n > COLUMNS:
+                    flag = True
+                elif pos_j + n <= COLUMNS and isinstance(self.matrix[pos_i][pos_j + n], Matrix.Blank):
+                    self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+                    self.matrix[pos_i][pos_j + n] = Bomb((pos_i, pos_j + n), self.matrix)
+                    self.shoe = False
+                    flag = True
+                else:
+                    n += 1
+
+        elif direction == 'none':
+            return
+
 
 class User(Player):
 
@@ -338,6 +437,9 @@ class User(Player):
 
         if keys[pygame.K_s]:
             self.move_down()
+
+        if keys[pygame.K_z]:
+            self.kick_bomb()
 
         self.last_movement_time = actual_time
 

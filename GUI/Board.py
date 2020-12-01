@@ -29,6 +29,8 @@ class Board:
     matrix = Matrix.Matrix.get_instance()
     board_matrix = matrix.get_matrix()
     players = pygame.sprite.Group()
+    players_list = [matrix.user, matrix.enemy0, matrix.enemy1, matrix.enemy2,
+                    matrix.enemy3, matrix.enemy4, matrix.enemy5, matrix.enemy6]
 
     @staticmethod
     def get_instace():
@@ -148,6 +150,36 @@ class Board:
         :return: void
         """
 
+        list = []
+
+        for i in self.players_list:
+
+            if i.cross_bomb == True:
+                list.append(i)
+
+        for j in list:
+
+            row = j.get_x()
+            column = j.get_y()
+
+            if frame % 1000 == 0:
+
+                for k in range(0, ROWS):  # Vertical change
+
+                    if isinstance(self.board_matrix[k][column], Fire):
+                        self.board_matrix[k][column] = Matrix.Blank((k, column))
+                        self.reduce_player_live(row, column)
+
+                for l in range(0, COLUMNS):  # Horizontal change
+
+                    if isinstance(self.board_matrix[row][l], Fire):
+                        self.board_matrix[row][l] = Matrix.Blank((row, l))
+                        self.reduce_player_live(row, column)
+
+                i.cross_bomb = False
+                self.return_players_matrix()
+
+        """
         row = self.matrix.user.get_x()
         column = self.matrix.user.get_y()
 
@@ -159,24 +191,33 @@ class Board:
 
                     if isinstance(self.board_matrix[i][column], Fire):
                         self.board_matrix[i][column] = Matrix.Blank((i, column))
-                        self.reduce_enemy_live(row, column)
+                        self.reduce_player_live(row, column)
 
                 for j in range(0, COLUMNS): # Horizontal change
 
                     if isinstance(self.board_matrix[row][j], Fire):
                         self.board_matrix[row][j] = Matrix.Blank((row, j))
-                        self.reduce_enemy_live(row, column)
+                        self.reduce_player_live(row, column)
 
-                self.matrix.user.cross_bomb_time = 0
                 self.matrix.user.cross_bomb = False
-                self.return_enemies()
+                self.return_players_matrix()
+        """
 
-    def return_enemies(self):
+    def return_players_matrix(self):
 
         """
         Method that returns the enemies to the matrix after a cross bomb power up
-        :return: void
         """
+
+        for i in self.players_list:
+            x = i.get_x()
+            y = i.get_y()
+            self.board_matrix[x][y] = i
+
+        """
+        x = self.matrix.user.get_x()
+        y = self.matrix.user.get_y()
+        self.board_matrix[x][y] = self.matrix.user
 
         x = self.matrix.enemy0.get_x()
         y = self.matrix.enemy0.get_y()
@@ -205,15 +246,30 @@ class Board:
         x = self.matrix.enemy6.get_x()
         y = self.matrix.enemy6.get_y()
         self.board_matrix[x][y] = self.matrix.enemy6
+        """
 
-    def reduce_enemy_live(self, row, column):
+    def reduce_player_live(self, row, column):
 
         """
-        Method that decreases enemies live when a bomb touches them
+        Method that decreases user or enemies live when a bomb touches them
         :param row
         :param column
         :return: void
         """
+
+        for i in self.players_list:
+            x = i.get_x()
+            y = i.get_y()
+
+            if x == row and y == column:
+                i.lives -= 1
+
+        """
+        x = self.matrix.user.get_x()
+        y = self.matrix.user.get_y()
+
+        if x == row and y == column:
+            self.matrix.user.lives -= 1
 
         x = self.matrix.enemy0.get_x()
         y = self.matrix.enemy0.get_y()
@@ -256,3 +312,4 @@ class Board:
 
         if x == row and y == column:
             self.matrix.enemy6.lives -= 1
+        """
