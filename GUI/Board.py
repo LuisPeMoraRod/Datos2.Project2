@@ -161,8 +161,10 @@ class Board:
 
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             self.board_matrix[row][column] = Fire(position)
+            if isinstance(element, Breakable) or isinstance(element, Bomb):
+                return False
             return True
-        elif isinstance(element, Unbreakable) and isinstance(element, Bomb) and isinstance(Breakable):
+        else:
             return False
 
     def create_blank(self, position):
