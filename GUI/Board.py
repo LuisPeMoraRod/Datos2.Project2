@@ -142,13 +142,6 @@ class Board:
         self.enemies.add(self.matrix.enemy5)
         self.enemies.add(self.matrix.enemy6)
 
-        i0 = self.matrix.user.get_x()
-        j0 = self.matrix.user.get_y()
-
-        i1 = self.matrix.enemy3.get_x()
-        j1 = self.matrix.enemy3.get_y()
-        #route = Route(i0, j0, i1, j1)
-
     def create_power_up(self, frame):
         if frame % 50000 == 0:
             PowerUp([0, 0], self.matrix)
