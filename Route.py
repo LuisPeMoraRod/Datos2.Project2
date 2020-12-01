@@ -29,7 +29,6 @@ class Route:
         self.matrix = Matrix.Matrix.get_instance().get_matrix()
 
         self.find_objective()
-        print(str(self))
 
     def __str__(self):
         route = self.get_route(self.i_objective, self.j_objective, [])
@@ -107,7 +106,6 @@ class Route:
             self.visited.append(current)
 
             if current.i == self.i_objective and current.j == self.j_objective:
-                print("found it")
                 break
 
             for neighbor in self.get_neighbors(current):
