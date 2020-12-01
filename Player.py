@@ -35,6 +35,7 @@ class Player (pygame.sprite.Sprite):
         self.has_cross_bomb = False
         self.has_shoe = False
         self.has_shield = False
+        self.bomb_radius = 0
 
     def get_x(self):
         return self.position[0]
@@ -109,13 +110,16 @@ class Player (pygame.sprite.Sprite):
                 self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
             self.position[0] += 1
 
+    def set_bomb_radius(self, bomb_radius):
+        self.bomb_radius = bomb_radius
+
     def leave_bomb(self):
         """
         Method that allows the player to leave a bomb where he is
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
-        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix)
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.bomb_radius)
         self.new_bomb = False
 
 
@@ -131,6 +135,7 @@ class User(Player):
         self.lives = 3
         self.velocity = TIME_BETWEEN_MOVEMENTS
         self.explosion_radius = 2
+        self.set_bomb_radius(self.explosion_radius)
 
     def __str__(self):
         """
@@ -184,6 +189,7 @@ class Enemy(Player, threading.Thread):
         self.velocity = enemy_stats[1]*100
         self.explosion_radius = enemy_stats[2]
         self.evasion = enemy_stats[3]
+        self.set_bomb_radius(self.explosion_radius)
 
         # Genetics
         self.genetics = GeneticAlgorithm.GeneticAlgorithm()
