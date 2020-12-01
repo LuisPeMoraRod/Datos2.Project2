@@ -16,6 +16,7 @@ BLUE = (0, 168, 187)
 PURPLE = (108, 52, 131)
 PINK = (240, 54, 192)
 WHITE = (255, 255, 255)
+ORANGE = (230, 126, 34)
 BLOCK_SIZE = 50
 ROWS = 12
 COLUMNS = 18
@@ -44,11 +45,13 @@ class Board:
         else:
             Board.__instance = self
             self.create_players_group()
+            self.killed_player = None
+            self.killed_player_row = 0
+            self.killed_player_column = 0
 
     def draw_base(self, SCREEN):
         pos_x = 5
         pos_y = 2
-
         for x in range(pos_x, COLUMNS + pos_x):
             for y in range(pos_y, ROWS + pos_y):
                 if x % 2 == 0:
@@ -69,7 +72,6 @@ class Board:
         y = 2
         row = 0
         column = 0
-
         for i in self.board_matrix:
             for j in i:
                 if not isinstance(j, Blank):
@@ -92,11 +94,11 @@ class Board:
                         detonate_bomb = j.detonate()
                         if detonate_bomb:
                             for k in range(1, j.radius):
-                                if row - k > 0 and self.enable_up:
+                                if row - k >= 0 and self.enable_up:
                                     self.enable_up = self.create_fire((j.position[0] - k, column))
                                 if row + k < ROWS and self.enable_down:
                                     self.enable_down = self.create_fire((j.position[0] + k, column))
-                                if column - k > 0 and self.enable_left:
+                                if column - k >= 0 and self.enable_left:
                                     self.enable_left = self.create_fire((row, j.position[1] - k))
                                 if column + k < COLUMNS and self.enable_right:
                                     self.enable_right = self.create_fire((row, j.position[1] + k))
@@ -145,10 +147,7 @@ class Board:
 
         i1 = self.matrix.enemy3.get_x()
         j1 = self.matrix.enemy3.get_y()
-        print(str(i0) + " " + str(j0))
-        print(str(i1) + " " + str(j1))
-        route = Route(i0, j0, i1, j1)
-        print(route.get_commands())
+        #route = Route(i0, j0, i1, j1)
 
     def create_power_up(self, frame):
         if frame % 50000 == 0:
@@ -160,15 +159,31 @@ class Board:
         element = self.board_matrix[row][column]
 
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
+            if isinstance(element, User) or isinstance(element, Enemy):
+                self.killed_player = element.lose_live()
+                self.killed_player_row = row
+                self.killed_player_column = column
+                if self.killed_player is None:
+                    self.board_matrix[row][column] = Fire(position)
+                    return True
+                self.killed_player.is_movement_denied = True
             self.board_matrix[row][column] = Fire(position)
+            if isinstance(element, Breakable) or isinstance(element, Bomb):
+                return False
             return True
-        elif isinstance(element, Unbreakable) and isinstance(element, Bomb) and isinstance(Breakable):
+        else:
             return False
 
     def create_blank(self, position):
         row = position[0]
         column = position[1]
-        self.board_matrix[row][column] = Blank((row, column))
+        if self.killed_player is None:
+            self.board_matrix[row][column] = Blank((row, column))
+        elif self.killed_player_row == row \
+                and self.killed_player_column == column:
+            self.board_matrix[row][column] = self.killed_player
+            self.killed_player.is_movement_denied = False
+            self.killed_player = None
 
     def restart_enables(self):
         self.enable_up = True

@@ -3,6 +3,7 @@ import Player
 import Matrix
 from PowerUp import PowerUp
 from Bomb import *
+from Fire import Fire
 
 
 class Route:
@@ -29,7 +30,6 @@ class Route:
         self.matrix = Matrix.Matrix.get_instance().get_matrix()
 
         self.find_objective()
-        print(str(self))
 
     def __str__(self):
         route = self.get_route(self.i_objective, self.j_objective, [])
@@ -51,7 +51,8 @@ class Route:
 
         try:
             if j - 1 >= 0:
-                if not isinstance(self.matrix[i][j-1], Unbreakable):
+                if not isinstance(self.matrix[i][j-1], Unbreakable) \
+                        and not isinstance(self.matrix[i][j-1], Fire):
                     neighbor = self.Node(i, j-1)
                     neighbors.append(neighbor)
         except:
@@ -59,21 +60,24 @@ class Route:
 
         try:
             if i - 1 >= 0:
-                if not isinstance(self.matrix[i-1][j], Unbreakable):
+                if not isinstance(self.matrix[i-1][j], Unbreakable) \
+                        and not isinstance(self.matrix[i-1][j], Fire):
                     neighbor = self.Node(i-1, j)
                     neighbors.append(neighbor)
         except:
             pass
 
         try:
-            if not isinstance(self.matrix[i][j+1], Unbreakable):
+            if not isinstance(self.matrix[i][j+1], Unbreakable) \
+                    and not isinstance(self.matrix[i][j+1], Fire):
                 neighbor = self.Node(i, j+1)
                 neighbors.append(neighbor)
         except:
             pass
 
         try:
-            if not isinstance(self.matrix[i+1][j], Unbreakable):
+            if not isinstance(self.matrix[i+1][j], Unbreakable) \
+                    and not isinstance(self.matrix[i+1][j], Fire):
                 neighbor = self.Node(i+1, j)
                 neighbors.append(neighbor)
         except:
@@ -107,7 +111,6 @@ class Route:
             self.visited.append(current)
 
             if current.i == self.i_objective and current.j == self.j_objective:
-                print("found it")
                 break
 
             for neighbor in self.get_neighbors(current):
