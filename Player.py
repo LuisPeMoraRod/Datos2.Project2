@@ -15,6 +15,7 @@ import time
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
 TIME_BETWEEN_BOMBS = 1000
+HIDING_TIME = 0.5
 
 
 class Player (pygame.sprite.Sprite):
@@ -181,8 +182,6 @@ class Player (pygame.sprite.Sprite):
         Method that makes the player lose a live
         kills the player if he reaches 0 lives
         """
-        pos_i = self.get_x()
-        pos_j = self.get_y()
         self.lives -= 1
         if self.lives <= 0:
             self.kill()  # Method from the pygame.Sprite class
@@ -288,7 +287,10 @@ class Enemy(Player, threading.Thread):
     def choose_next_action(self):
         """
         Execute a new action from the genetic algorithm
+        This function calls itself until the player dies
+        the recursion allows the enemy to never stop playing
         """
+        # Stop the movement if the player has no lives left
         if self.lives <= 0:
             return
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-2)
@@ -299,8 +301,7 @@ class Enemy(Player, threading.Thread):
             # Hide action
             print("Hide enemy")
             self.hide_enemy()
-            time.sleep(0.5)
-
+            time.sleep(HIDING_TIME)
         elif random_action == 0:
             # Search power up
             self.search_a_power_up()
@@ -578,7 +579,6 @@ class Enemy(Player, threading.Thread):
         Method that reads the enemy movements based on the genetic algorithm
         """
         self.start()
-
 
     def find_closest_object(self, object_str):
         """

@@ -143,7 +143,6 @@ class Matrix:
                 return True
         return False
 
-
     def add_players(self, positions):
         """Adds players to the matrix"""
         players = []

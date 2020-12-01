@@ -23,6 +23,7 @@ COLUMNS = 18
 
 
 class Board:
+    # Class constants
     __instance = None
     matrix = Matrix.Matrix.get_instance()
     board_matrix = matrix.get_matrix()
@@ -35,11 +36,19 @@ class Board:
 
     @staticmethod
     def get_instance():
+        """
+        Singleton method get_instance()
+        returns the only Board in the game or
+        a new one if there is no Board
+        """
         if Board.__instance is None:
             return Board()
         return Board.__instance
 
     def __init__(self):
+        """
+        Class constructor
+        """
         if Board.__instance is not None:
             raise Exception("A board has already been created!")
         else:
@@ -50,8 +59,13 @@ class Board:
             self.killed_player_column = 0
 
     def draw_base(self, SCREEN):
+        """
+        Draws the base of the game board as it
+        was a matrix fulled with Blanck objects
+        """
         pos_x = 5
         pos_y = 2
+        # Alternates the colors of  the blanck spaces
         for x in range(pos_x, COLUMNS + pos_x):
             for y in range(pos_y, ROWS + pos_y):
                 if x % 2 == 0:
@@ -68,32 +82,44 @@ class Board:
                 pygame.draw.rect(SCREEN, color, rect)
 
     def draw_board(self, SCREEN):
+        """
+        Method that draws the game matrix, updates the matrix
+        everytime it is called
+        """
         x = 5
         y = 2
         row = 0
         column = 0
         for i in self.board_matrix:
-            for j in i:
+            for j in i:  # j represents every object in the matrix
                 if not isinstance(j, Blank):
                     if isinstance(j, Unbreakable):
+                        # Unbreakable blocks will have light gray color
                         rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, LIGHT_GREY, rect)
                     elif isinstance(j, Breakable):
+                        # Breakable blocks will have brown color
                         rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BROWN, rect)
                     elif isinstance(j, User):
+                        # Users will have yellow color
                         user = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, YELLOW, user)
                     elif isinstance(j, Enemy):
+                        # Enemies will have red color
                         enemy = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, RED, enemy)
                     elif isinstance(j, Bomb):
+                        # Bombs will have black color
                         bomb = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BLACK, bomb)
-
+                        # Bomb detonates after a certain amount of time defined in Bomb.py
                         detonate_bomb = j.detonate()
                         if detonate_bomb:
+                            # This iteration controls the places that will convert into Fire
+                            # during an explosion
                             for k in range(1, j.radius):
+                                # j.radius represents the radius of the bomb
                                 if row - k >= 0 and self.enable_up:
                                     self.enable_up = self.create_fire((j.position[0] - k, column))
                                 if row + k < ROWS and self.enable_down:
@@ -105,21 +131,26 @@ class Board:
                             self.board_matrix[row][column] = Fire((row, column))
                         self.restart_enables()
                     elif isinstance(j, Shoe):
+                        # Shoe power ups will have purple color
                         power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, PURPLE, power_up)
                     elif isinstance(j, CrossBomb):
+                        # Crossbomb power ups will have white color
                         power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, WHITE, power_up)
                     elif isinstance(j, Shield):
+                        # Shield power ups will have blue color
                         power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BLUE, power_up)
                     elif isinstance(j, Healing):
+                        # Healing power ups will have pink color
                         power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, PINK, power_up)
                     elif isinstance(j, Fire):
+                        # Fire positions will have orange color
                         fire = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, ORANGE, fire)
-
+                        # The fire stops after a certain amount of time defined in Fire.py
                         off_fire = j.check_fire_state()
                         if off_fire:
                             self.create_blank((row, column))
@@ -133,6 +164,9 @@ class Board:
             y = y + 1
 
     def create_players_group(self):
+        """
+        Defines the sprites needed in the game
+        """
         self.users.add(self.matrix.user)
         self.enemies.add(self.matrix.enemy0)
         self.enemies.add(self.matrix.enemy1)
@@ -143,22 +177,32 @@ class Board:
         self.enemies.add(self.matrix.enemy6)
 
     def create_power_up(self, frame):
+        """
+        Auxiliary method to create power ups every certain
+        amount of time in the matrix
+        """
         if frame % 50000 == 0:
             PowerUp([0, 0], self.matrix)
 
     def create_fire(self, position):
+        """
+        Method that creates the fire objects needed in the explosion
+        :brief: The fire doesn't destruct bombs nor unbreakable blocks
+        always makes a player loose a live and destructs the Breakable
+        blocks and the power ups
+        """
         row = position[0]
         column = position[1]
         element = self.board_matrix[row][column]
-
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
                 self.killed_player = element.lose_live()
                 self.killed_player_row = row
                 self.killed_player_column = column
-                if self.killed_player is None:
+                if self.killed_player is None:  # This happens when the player dies
                     self.board_matrix[row][column] = Fire(position)
                     return True
+                # When the player is being bombed the movement stops
                 self.killed_player.is_movement_denied = True
             self.board_matrix[row][column] = Fire(position)
             if isinstance(element, Breakable) or isinstance(element, Bomb):
@@ -168,6 +212,10 @@ class Board:
             return False
 
     def create_blank(self, position):
+        """
+        This method restores the object after every explosion
+        considers if there was player underneath and if the Fire killed him
+        """
         row = position[0]
         column = position[1]
         if self.killed_player is None:
@@ -179,6 +227,10 @@ class Board:
             self.killed_player = None
 
     def restart_enables(self):
+        """
+        Auxiliary method used to reset values
+        used to control the fire in draw board
+        """
         self.enable_up = True
         self.enable_right = True
         self.enable_left = True
