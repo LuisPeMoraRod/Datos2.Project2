@@ -97,7 +97,7 @@ class Route:
             return 5
         elif isinstance(position, Player.Player):
             return 6
-        elif isinstance(position, Matrix.Blank):
+        elif isinstance(position, Matrix.Blank) or isinstance(position, PowerUp):
             return 1
 
 

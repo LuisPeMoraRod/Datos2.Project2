@@ -2,6 +2,8 @@ from Matrix import *
 from PowerUp import *
 from Fire import *
 from Route import *
+import random
+import pygame.time
 
 # constants
 LIGHT_GREEN = (120, 187, 82)
@@ -20,6 +22,7 @@ ORANGE = (230, 126, 34)
 BLOCK_SIZE = 50
 ROWS = 12
 COLUMNS = 18
+TIME_BETWEEN_POWER_UPS = 5000
 
 
 class Board:
@@ -57,6 +60,7 @@ class Board:
             self.killed_player = None
             self.killed_player_row = 0
             self.killed_player_column = 0
+            self.last_power_up_time = pygame.time.get_ticks()
 
     def draw_base(self, SCREEN):
         """
@@ -176,13 +180,27 @@ class Board:
         self.enemies.add(self.matrix.enemy5)
         self.enemies.add(self.matrix.enemy6)
 
-    def create_power_up(self, frame):
+    def create_power_up(self, actual_time):
         """
         Auxiliary method to create power ups every certain
         amount of time in the matrix
         """
-        if frame % 50000 == 0:
-            PowerUp([0, 0], self.matrix)
+        # A power up will be generated after a certain amount of time
+        if actual_time - self.last_power_up_time > TIME_BETWEEN_POWER_UPS:
+            self.last_power_up_time = actual_time
+            power_up_number = random.randint(0, 3)  # Random power up
+            if power_up_number == 0:
+                crossbomb = CrossBomb(self.matrix)
+                self.matrix.matrix[crossbomb.get_x()][crossbomb.get_y()] = crossbomb
+            elif power_up_number == 1:
+                healing = Healing(self.matrix)
+                self.matrix.matrix[healing.get_x()][healing.get_y()] = healing
+            elif power_up_number == 2:
+                shield = Shield(self.matrix)
+                self.matrix.matrix[shield.get_x()][shield.get_y()] = shield
+            elif power_up_number == 3:
+                shoe = Shoe(self.matrix)
+                self.matrix.matrix[shoe.get_x()][shoe.get_y()] = shoe
 
     def create_fire(self, position):
         """
