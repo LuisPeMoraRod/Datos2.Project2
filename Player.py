@@ -204,10 +204,15 @@ class Player (pygame.sprite.Sprite):
         self.new_bomb = False
 
     def kick_bomb(self, position):
+        """
+        Auxiliary method for the Shoe power up, changes
+        the position of the "kicked" bomb
+        """
         pos_i = position[0]
         pos_j = position[1]
         self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
         new_position_found = False
+        # Searches until it founds a Black position to add the bomb
         while not new_position_found:
             pos_i = random.randint(0, Matrix.ROWS - 1)
             pos_j = random.randint(0, Matrix.COLUMNS - 1)

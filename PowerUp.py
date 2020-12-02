@@ -1,11 +1,11 @@
 import random
-import Player
 import Matrix
 import threading
 import time
 
 # Constants
 SHIELD_TIME = 10  # in seconds
+
 
 class PowerUp:
     """
@@ -20,6 +20,8 @@ class PowerUp:
         """
         self.matrix = matrix.matrix
         self.position = [0, 0]
+        pos_i = 0
+        pos_j = 0
         flag = False
         while not flag:
             pos_i = random.randint(0, Matrix.ROWS - 1)
@@ -30,9 +32,11 @@ class PowerUp:
         self.position[1] = pos_j
 
     def get_x(self):
+        """:return: power up row"""
         return self.position[0]
 
     def get_y(self):
+        """:return: power up column"""
         return self.position[1]
 
     def activate(self, player):
@@ -45,6 +49,9 @@ class CrossBomb(PowerUp):
         super().__init__(matrix)
 
     def activate(self, player):
+        """
+        Method that allows the player leave a crossbomb
+        """
         player.has_cross_bomb = True
         pos_i = self.get_x()
         pos_j = self.get_y()
@@ -88,6 +95,10 @@ class Shield(PowerUp, threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        """
+        Thread method to allow the player
+        to have the shield for some seconds
+        """
         time.sleep(SHIELD_TIME)
         self.player.has_shield = False
 
