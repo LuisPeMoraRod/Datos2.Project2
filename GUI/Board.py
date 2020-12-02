@@ -187,7 +187,7 @@ class Board:
         """
         if actual_time - self.last_power_up_time > TIME_BETWEEN_POWER_UPS:
             self.last_power_up_time = actual_time
-            power_up_number = random.randint(0, 2)
+            power_up_number = random.randint(0, 3)
             if power_up_number == 0:
                 crossbomb = CrossBomb(self.matrix)
                 self.matrix.matrix[crossbomb.get_x()][crossbomb.get_y()] = crossbomb
@@ -197,6 +197,9 @@ class Board:
             elif power_up_number == 2:
                 shield = Shield(self.matrix)
                 self.matrix.matrix[shield.get_x()][shield.get_y()] = shield
+            elif power_up_number == 3:
+                shoe = Shoe(self.matrix)
+                self.matrix.matrix[shoe.get_x()][shoe.get_y()] = shoe
 
     def create_fire(self, position):
         """

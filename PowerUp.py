@@ -45,7 +45,6 @@ class CrossBomb(PowerUp):
         super().__init__(matrix)
 
     def activate(self, player):
-        print("Activate Crossbomb")
         player.has_cross_bomb = True
         pos_i = self.get_x()
         pos_j = self.get_y()
@@ -69,7 +68,6 @@ class Healing(PowerUp):
         Method that makes the player gain a live
         Theres a maximum live stat that limits this value
         """
-        print("Activate Healing")
         player.lives += 1
         pos_i = self.get_x()
         pos_j = self.get_y()
@@ -92,14 +90,12 @@ class Shield(PowerUp, threading.Thread):
     def run(self):
         time.sleep(SHIELD_TIME)
         self.player.has_shield = False
-        print("DeActivate Shield")
 
     def activate(self, player):
         """
         Method that makes the player have a shield, this is
         similar to an extra live but just for a certain amount of time
         """
-        print("Activate Shield")
         self.player = player
         self.player.has_shield = True
         self.start()
@@ -117,19 +113,21 @@ class Shield(PowerUp, threading.Thread):
 
 class Shoe(PowerUp):
 
-    def __init__(self, position, matrix):
+    def __init__(self, matrix):
+        super().__init__(matrix)
 
-        self.matrix = matrix
-        self.position = position
-        self.kick_radius = 3  # how many node are necessary?
-
-    def kick_bomb(self):
-        # change bomb position in the matrix
-        pass
+    def activate(self, player):
+        """
+        Method that makes the player have a shoe
+        """
+        player.has_shoe = True
+        pos_i = self.get_x()
+        pos_j = self.get_y()
+        self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
 
     def __str__(self):
         """
-        ASCII identifier for the shoe power up
-        :return: "z"
+        ASCII identifier for the cross bomb power up
+        :return: "s"
         """
-        return "z"
+        return "s"

@@ -71,7 +71,6 @@ class Player (pygame.sprite.Sprite):
             return "Out of bounds"
         # Activate a power up if it follows the movement
         if isinstance(self.matrix[pos_i][pos_j+1], PowerUp.PowerUp):
-            print("Activate power up")
             self.matrix[pos_i][pos_j + 1].activate(self)
         # Do the normal movement when the next position is Blanck
         if isinstance(self.matrix[pos_i][pos_j+1], Matrix.Blank):
@@ -87,6 +86,8 @@ class Player (pygame.sprite.Sprite):
             return "Breakable"
         # Every other object will kill the movement
         else:
+            if isinstance(self.matrix[pos_i][pos_j+1], Bomb.Bomb) and self.has_shoe:
+                self.kick_bomb((pos_i, pos_j+1))
             return "Abort movement"
 
     def move_left(self):
@@ -103,7 +104,6 @@ class Player (pygame.sprite.Sprite):
             return "Out of bounds"
         # Activate a power up if it follows the movement
         if isinstance(self.matrix[pos_i][pos_j-1], PowerUp.PowerUp):
-            print("Activate power up")
             self.matrix[pos_i][pos_j - 1].activate(self)
         # Do the normal movement when the next position is Blanck
         if isinstance(self.matrix[pos_i][pos_j - 1], Matrix.Blank):
@@ -119,6 +119,8 @@ class Player (pygame.sprite.Sprite):
             return "Breakable"
         # Every other object will kill the movement
         else:
+            if isinstance(self.matrix[pos_i][pos_j-1], Bomb.Bomb) and self.has_shoe:
+                self.kick_bomb((pos_i, pos_j-1))
             return "Abort movement"
 
     def move_up(self):
@@ -135,7 +137,6 @@ class Player (pygame.sprite.Sprite):
             return "Out of bounds"
         # Activate a power up if it follows the movement
         if isinstance(self.matrix[pos_i-1][pos_j], PowerUp.PowerUp):
-            print("Activate power up")
             self.matrix[pos_i-1][pos_j].activate(self)
         # Do the normal movement when the next position is Blanck
         if isinstance(self.matrix[pos_i - 1][pos_j], Matrix.Blank):
@@ -151,6 +152,8 @@ class Player (pygame.sprite.Sprite):
             return "Breakable"
         # Every other object will kill the movement
         else:
+            if isinstance(self.matrix[pos_i-1][pos_j], Bomb.Bomb) and self.has_shoe:
+                self.kick_bomb((pos_i-1, pos_j))
             return "Abort movement"
 
     def move_down(self):
@@ -167,7 +170,6 @@ class Player (pygame.sprite.Sprite):
             return "Out of bounds"
         # Activate a power up if it follows the movement
         if isinstance(self.matrix[pos_i+1][pos_j], PowerUp.PowerUp):
-            print("Activate power up")
             self.matrix[pos_i+1][pos_j].activate(self)
         # Do the normal movement when the next position is Blanck
         if isinstance(self.matrix[pos_i + 1][pos_j], Matrix.Blank):
@@ -183,6 +185,8 @@ class Player (pygame.sprite.Sprite):
             return "Breakable"
         # Every other object will kill the movement
         else:
+            if isinstance(self.matrix[pos_i+1][pos_j], Bomb.Bomb) and self.has_shoe:
+                self.kick_bomb((pos_i+1, pos_j))
             return "Abort movement"
 
     def leave_bomb(self):
@@ -198,12 +202,26 @@ class Player (pygame.sprite.Sprite):
         self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, bomb_radius)
         self.new_bomb = False
 
+    def kick_bomb(self, position):
+        pos_i = position[0]
+        pos_j = position[1]
+        self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+        new_position_found = False
+        while not new_position_found:
+            pos_i = random.randint(0, Matrix.ROWS - 1)
+            pos_j = random.randint(0, Matrix.COLUMNS - 1)
+            if isinstance(self.matrix[pos_i][pos_j], Matrix.Blank):
+                new_position_found = True
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.explosion_radius)
+        self.has_shoe = False
+
     def lose_live(self):
         """
         Method that makes the player lose a live
         kills the player if he reaches 0 lives
         """
-        self.lives -= 1
+        if not self.has_shield:
+            self.lives -= 1
         if self.lives <= 0:
             self.kill()  # Method from the pygame.Sprite class
             return None
