@@ -196,6 +196,8 @@ class Route:
         :return:
         """
         commands = []
+        if route is None:
+            return commands
         if len(route) > 0:
             if route[0][0] - self.start.i > 0:
                 commands.append("down")
