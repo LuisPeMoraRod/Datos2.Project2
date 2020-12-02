@@ -86,7 +86,7 @@ class Matrix:
         while blocks_counter < random_blocks:
             i = random.randint(0, ROWS - 1)
             j = random.randint(0, COLUMNS - 1)
-            if isinstance(self.matrix[i][j], Blank):
+            if isinstance(self.matrix[i][j], Blank) and not self.is_in_player_zone(i, j):
                 unbreakable = Unbreakable((i, j))
                 self.matrix[i][j] = unbreakable
                 blocks_counter += 1
@@ -142,7 +142,6 @@ class Matrix:
             elif i == position[0]+1 and j == position[1]+1:
                 return True
         return False
-
 
     def add_players(self, positions):
         """Adds players to the matrix"""

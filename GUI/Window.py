@@ -1,11 +1,9 @@
 import sys
-
-import pygame
 from pygame.locals import *
 from GUI.Board import *
 
 
-HEIGHT = 750
+HEIGHT = 700
 WIDTH = 1400
 
 
@@ -34,15 +32,19 @@ class MainWindow:
         pygame.init()
         screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
         pygame.display.set_caption('BomberTEC')
-        board = Board.get_instace()
+        board = Board.get_instance()
+        board.enemies.update()
+        #board.matrix.enemy0.update()
+        #board.matrix.enemy1.update()
+        #board.matrix.enemy2.update()
+        #board.matrix.enemy3.update()
+        #board.matrix.enemy4.update()
+
 
         # Frame quantity
         frame = 0
-        FPS = 2
-        clock = pygame.time.Clock()
 
         while not self.__done:
-            # clock.tick(FPS)
             screen.blit(self.__bg_image, (0, 0))
             board.draw_base(screen)
             board.draw_board(screen)
@@ -51,10 +53,11 @@ class MainWindow:
                     pygame.quit()
                     sys.exit()
 
-            board.players.update()
+            board.users.update()
 
             # Random power up creation
-            board.create_power_up(frame)
+
+            ### board.create_power_up(frame)
 
             frame += 1
 
