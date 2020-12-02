@@ -17,6 +17,7 @@ import time
 TIME_BETWEEN_MOVEMENTS = 150
 TIME_BETWEEN_BOMBS = 1000
 HIDING_TIME = 0.5
+POWER_UP_SEARCH_TIME = 0.2
 
 
 class Player (pygame.sprite.Sprite):
@@ -334,14 +335,14 @@ class Enemy(Player, threading.Thread):
             return
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-2)
         random_action = self.genetics.chromosome[random_number]
-        random_action = random.randint(1, 3)
-        if random_action == 1:
+        if random_action == 0:
             # Hide action
             self.hide_enemy()
             time.sleep(HIDING_TIME)
-        elif random_action == 0:
+        elif random_action == 1:
             # Search power up
             self.search_a_power_up()
+            time.sleep(POWER_UP_SEARCH_TIME)
         elif random_action == 2:
             # Search an enemy
             self.search_an_enemy()
@@ -529,7 +530,7 @@ class Enemy(Player, threading.Thread):
         :brief: given the closest power up the method
         uses the A* algorithm to move towards it
         """
-        closest_power_up_position = self.find_closest_object("chsz")  # chsz are all the possible power ups
+        closest_power_up_position = self.find_closest_object("+h@s")  # chsz are all the possible power ups
         if closest_power_up_position == []:
             return
         enemy_i = self.get_x()
