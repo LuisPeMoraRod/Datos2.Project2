@@ -296,10 +296,8 @@ class Enemy(Player, threading.Thread):
         random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-2)
         random_action = self.genetics.chromosome[random_number]
         random_action = random.randint(1, 3)
-        print("CHOOSE_NEXT_ACTION")
         if random_action == 1:
             # Hide action
-            print("Hide enemy")
             self.hide_enemy()
             time.sleep(HIDING_TIME)
         elif random_action == 0:
@@ -307,13 +305,10 @@ class Enemy(Player, threading.Thread):
             self.search_a_power_up()
         elif random_action == 2:
             # Search an enemy
-            print("Search enemy")
             self.search_an_enemy()
         elif random_action == 3:
             # Leave a bomb
-            print("Leave bomb")
-            self.leave_enemy_bomb()
-
+            self.leave_enemy_bomb
         self.choose_next_action()
 
     def is_position_save(self, p_type, p_number):
@@ -371,9 +366,8 @@ class Enemy(Player, threading.Thread):
 
         if save_movement != []:  # Empty list means that the actual position is safe
             self.move_enemy_aux(save_movement)
-        else:
-            print("The actual position is a save one")
 
+    @property
     def leave_enemy_bomb(self):
         """
         Action that leaves an enemy bomb
@@ -545,7 +539,7 @@ class Enemy(Player, threading.Thread):
 
             if message == "Breakable":
                 # Add a bomb and hide
-                movement_list = self.leave_enemy_bomb()
+                movement_list = self.leave_enemy_bomb
                 if movement_list == []:
                     break
                 return_route = self.get_back_to_position(movement_list) + [movement]
