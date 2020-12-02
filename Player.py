@@ -12,7 +12,10 @@ import pygame
 import random
 import threading
 import time
+import sys
 
+# Stack management
+sys.setrecursionlimit(10**6)
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
 TIME_BETWEEN_BOMBS = 1000
@@ -58,6 +61,41 @@ class Player (pygame.sprite.Sprite):
         """:return: current column"""
         return self.position[1]
 
+    def moving_aux(self, actual_pos, next_pos):
+        """
+        Auxiliary method for the move_right, move_left, move_up and
+        move_down methods
+        :param: next_object -> the object located in the position
+        where the player is moving
+        :param: actual_pos <Tuple> -> contains the player coordinates before the movement
+        :param: next_pos <Tuple> -> contains the player coordinates after the movement
+        :return: string -> action that the player most follow, the possible
+        actions are:
+        1) Moved -> the player moves and does nothing else
+        2) Breakable -> indicates that the next object is a breakable block
+        3) Abort movement -> indicates the player to stop moving
+        """
+        # Activate  a power up if it follows the movement
+        if isinstance(self.matrix[next_pos[0]][next_pos[1]], PowerUp.PowerUp):
+            self.matrix[next_pos[0]][next_pos[1]].activate(self)
+        # Do the normal movement when the next position is Blank
+        if isinstance(self.matrix[next_pos[0]][next_pos[1]], Matrix.Blank):
+            self.matrix[next_pos[0]][next_pos[1]] = self
+            if self.new_bomb:
+                self.leave_bomb()
+            else:
+                self.matrix[actual_pos[0]][actual_pos[1]] = Matrix.Blank(actual_pos)
+            self.position = next_pos
+            return "Moved"
+        # Inform if the next position is a Breakbale Block
+        elif isinstance(self.matrix[next_pos[0]][next_pos[1]], Block.Breakable):
+            return "Breakable"
+        # Every other object will kill the movement
+        else:
+            if isinstance(self.matrix[next_pos[0]][next_pos[1]], Bomb.Bomb) and self.has_shoe:
+                self.kick_bomb(next_pos)
+            return "Abort movement"
+
     def move_right(self):
         """
         Method that moves the player to the right in the matrix
@@ -68,28 +106,9 @@ class Player (pygame.sprite.Sprite):
             return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
-        if not pos_j < Matrix.COLUMNS - 1:
+        if not pos_j < Matrix.COLUMNS-1:
             return "Out of bounds"
-        # Activate a power up if it follows the movement
-        if isinstance(self.matrix[pos_i][pos_j+1], PowerUp.PowerUp):
-            self.matrix[pos_i][pos_j + 1].activate(self)
-        # Do the normal movement when the next position is Blanck
-        if isinstance(self.matrix[pos_i][pos_j+1], Matrix.Blank):
-            self.matrix[pos_i][pos_j + 1] = self
-            if self.new_bomb:
-                self.leave_bomb()
-            else:
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[1] += 1
-            return "Moved"
-        # Inform if the next position is a Breakable block
-        elif isinstance(self.matrix[pos_i][pos_j+1], Block.Breakable):
-            return "Breakable"
-        # Every other object will kill the movement
-        else:
-            if isinstance(self.matrix[pos_i][pos_j+1], Bomb.Bomb) and self.has_shoe:
-                self.kick_bomb((pos_i, pos_j+1))
-            return "Abort movement"
+        return self.moving_aux((pos_i, pos_j), (pos_i, pos_j+1))
 
     def move_left(self):
         """
@@ -103,26 +122,7 @@ class Player (pygame.sprite.Sprite):
         pos_j = self.get_y()
         if not pos_j > 0:
             return "Out of bounds"
-        # Activate a power up if it follows the movement
-        if isinstance(self.matrix[pos_i][pos_j-1], PowerUp.PowerUp):
-            self.matrix[pos_i][pos_j - 1].activate(self)
-        # Do the normal movement when the next position is Blanck
-        if isinstance(self.matrix[pos_i][pos_j - 1], Matrix.Blank):
-            self.matrix[pos_i][pos_j - 1] = self
-            if self.new_bomb:
-                self.leave_bomb()
-            else:
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[1] -= 1
-            return "Moved"
-        # Inform if the next position is a Breakable block
-        elif isinstance(self.matrix[pos_i][pos_j-1], Block.Breakable):
-            return "Breakable"
-        # Every other object will kill the movement
-        else:
-            if isinstance(self.matrix[pos_i][pos_j-1], Bomb.Bomb) and self.has_shoe:
-                self.kick_bomb((pos_i, pos_j-1))
-            return "Abort movement"
+        return self.moving_aux((pos_i, pos_j), (pos_i, pos_j-1))
 
     def move_up(self):
         """
@@ -136,26 +136,7 @@ class Player (pygame.sprite.Sprite):
         pos_j = self.get_y()
         if not pos_i > 0:
             return "Out of bounds"
-        # Activate a power up if it follows the movement
-        if isinstance(self.matrix[pos_i-1][pos_j], PowerUp.PowerUp):
-            self.matrix[pos_i-1][pos_j].activate(self)
-        # Do the normal movement when the next position is Blanck
-        if isinstance(self.matrix[pos_i - 1][pos_j], Matrix.Blank):
-            self.matrix[pos_i - 1][pos_j] = self
-            if self.new_bomb:
-                self.leave_bomb()
-            else:
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[0] -= 1
-            return "Moved"
-        # Inform if the next position is a Breakable block
-        elif isinstance(self.matrix[pos_i - 1][pos_j], Block.Breakable):
-            return "Breakable"
-        # Every other object will kill the movement
-        else:
-            if isinstance(self.matrix[pos_i-1][pos_j], Bomb.Bomb) and self.has_shoe:
-                self.kick_bomb((pos_i-1, pos_j))
-            return "Abort movement"
+        return self.moving_aux((pos_i, pos_j), (pos_i-1, pos_j))
 
     def move_down(self):
         """
@@ -169,26 +150,7 @@ class Player (pygame.sprite.Sprite):
         pos_j = self.get_y()
         if not pos_i < Matrix.ROWS - 1:
             return "Out of bounds"
-        # Activate a power up if it follows the movement
-        if isinstance(self.matrix[pos_i+1][pos_j], PowerUp.PowerUp):
-            self.matrix[pos_i+1][pos_j].activate(self)
-        # Do the normal movement when the next position is Blanck
-        if isinstance(self.matrix[pos_i + 1][pos_j], Matrix.Blank):
-            self.matrix[pos_i + 1][pos_j] = self
-            if self.new_bomb:
-                self.leave_bomb()
-            else:
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[0] += 1
-            return "Moved"
-        # Inform if the next position is a Breakable block
-        elif isinstance(self.matrix[pos_i+1][pos_j], Block.Breakable):
-            return "Breakable"
-        # Every other object will kill the movement
-        else:
-            if isinstance(self.matrix[pos_i+1][pos_j], Bomb.Bomb) and self.has_shoe:
-                self.kick_bomb((pos_i+1, pos_j))
-            return "Abort movement"
+        return self.moving_aux((pos_i, pos_j), (pos_i+1, pos_j))
 
     def leave_bomb(self):
         """
