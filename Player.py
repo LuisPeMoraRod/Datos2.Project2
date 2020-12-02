@@ -5,6 +5,7 @@ import Block
 import GeneticAlgorithm
 import Route
 import Fire
+import PowerUp
 
 # External project imports
 import pygame
@@ -68,6 +69,10 @@ class Player (pygame.sprite.Sprite):
         pos_j = self.get_y()
         if not pos_j < Matrix.COLUMNS - 1:
             return "Out of bounds"
+        # Activate a power up if it follows the movement
+        if isinstance(self.matrix[pos_i][pos_j+1], PowerUp.PowerUp):
+            print("Activate power up")
+            self.matrix[pos_i][pos_j + 1].activate(self)
         # Do the normal movement when the next position is Blanck
         if isinstance(self.matrix[pos_i][pos_j+1], Matrix.Blank):
             self.matrix[pos_i][pos_j + 1] = self
@@ -96,6 +101,10 @@ class Player (pygame.sprite.Sprite):
         pos_j = self.get_y()
         if not pos_j > 0:
             return "Out of bounds"
+        # Activate a power up if it follows the movement
+        if isinstance(self.matrix[pos_i][pos_j-1], PowerUp.PowerUp):
+            print("Activate power up")
+            self.matrix[pos_i][pos_j - 1].activate(self)
         # Do the normal movement when the next position is Blanck
         if isinstance(self.matrix[pos_i][pos_j - 1], Matrix.Blank):
             self.matrix[pos_i][pos_j - 1] = self
@@ -124,6 +133,10 @@ class Player (pygame.sprite.Sprite):
         pos_j = self.get_y()
         if not pos_i > 0:
             return "Out of bounds"
+        # Activate a power up if it follows the movement
+        if isinstance(self.matrix[pos_i-1][pos_j], PowerUp.PowerUp):
+            print("Activate power up")
+            self.matrix[pos_i-1][pos_j].activate(self)
         # Do the normal movement when the next position is Blanck
         if isinstance(self.matrix[pos_i - 1][pos_j], Matrix.Blank):
             self.matrix[pos_i - 1][pos_j] = self
@@ -152,6 +165,10 @@ class Player (pygame.sprite.Sprite):
         pos_j = self.get_y()
         if not pos_i < Matrix.ROWS - 1:
             return "Out of bounds"
+        # Activate a power up if it follows the movement
+        if isinstance(self.matrix[pos_i+1][pos_j], PowerUp.PowerUp):
+            print("Activate power up")
+            self.matrix[pos_i+1][pos_j].activate(self)
         # Do the normal movement when the next position is Blanck
         if isinstance(self.matrix[pos_i + 1][pos_j], Matrix.Blank):
             self.matrix[pos_i + 1][pos_j] = self
@@ -174,7 +191,11 @@ class Player (pygame.sprite.Sprite):
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
-        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.explosion_radius)
+        bomb_radius = self.explosion_radius
+        if self.has_cross_bomb:
+            bomb_radius = max(Matrix.COLUMNS, Matrix.ROWS)
+            self.has_cross_bomb = False
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, bomb_radius)
         self.new_bomb = False
 
     def lose_live(self):
