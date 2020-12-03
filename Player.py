@@ -4,15 +4,23 @@ import Bomb
 import Block
 import GeneticAlgorithm
 import Route
+import Fire
+import PowerUp
 
 # External project imports
 import pygame
 import random
 import threading
 import time
+import sys
 
+# Stack management
+sys.setrecursionlimit(10**6)
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
+TIME_BETWEEN_BOMBS = 1000
+HIDING_TIME = 0.5
+POWER_UP_SEARCH_TIME = 0.2
 
 
 class Player (pygame.sprite.Sprite):
@@ -35,11 +43,15 @@ class Player (pygame.sprite.Sprite):
         self.new_bomb = False
         # Movement attributes
         self.last_movement_time = pygame.time.get_ticks()
+        self.last_bomb_time = pygame.time.get_ticks()
+        self.is_movement_denied = False
         # Power ups attributes
         self.has_cross_bomb = False
         self.has_shoe = False
         self.has_shield = False
-        self.bomb_radius = 0
+        # Player stats
+        self.explosion_radius = 0
+        self.lives = 0
 
     def get_x(self):
         """:return: current row"""
@@ -49,26 +61,54 @@ class Player (pygame.sprite.Sprite):
         """:return: current column"""
         return self.position[1]
 
+    def moving_aux(self, actual_pos, next_pos):
+        """
+        Auxiliary method for the move_right, move_left, move_up and
+        move_down methods
+        :param: next_object -> the object located in the position
+        where the player is moving
+        :param: actual_pos <Tuple> -> contains the player coordinates before the movement
+        :param: next_pos <Tuple> -> contains the player coordinates after the movement
+        :return: string -> action that the player most follow, the possible
+        actions are:
+        1) Moved -> the player moves and does nothing else
+        2) Breakable -> indicates that the next object is a breakable block
+        3) Abort movement -> indicates the player to stop moving
+        """
+        # Activate  a power up if it follows the movement
+        if isinstance(self.matrix[next_pos[0]][next_pos[1]], PowerUp.PowerUp):
+            self.matrix[next_pos[0]][next_pos[1]].activate(self)
+        # Do the normal movement when the next position is Blank
+        if isinstance(self.matrix[next_pos[0]][next_pos[1]], Matrix.Blank):
+            self.matrix[next_pos[0]][next_pos[1]] = self
+            if self.new_bomb:
+                self.leave_bomb()
+            else:
+                self.matrix[actual_pos[0]][actual_pos[1]] = Matrix.Blank(actual_pos)
+            self.position = next_pos
+            return "Moved"
+        # Inform if the next position is a Breakbale Block
+        elif isinstance(self.matrix[next_pos[0]][next_pos[1]], Block.Breakable):
+            return "Breakable"
+        # Every other object will kill the movement
+        else:
+            if isinstance(self.matrix[next_pos[0]][next_pos[1]], Bomb.Bomb) and self.has_shoe:
+                self.kick_bomb(next_pos)
+            return "Abort movement"
+
     def move_right(self):
         """
         Method that moves the player to the right in the matrix
         :brief: If moving to the right is possible the player does it
         :return: An string indicating if the player moved
         """
+        if self.is_movement_denied:  # When a bomb hits the player
+            return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
-        if not pos_j < Matrix.COLUMNS - 1:
+        if not pos_j < Matrix.COLUMNS-1:
             return "Out of bounds"
-        if isinstance(self.matrix[pos_i][pos_j+1], Matrix.Blank):
-            self.matrix[pos_i][pos_j + 1] = self
-            if self.new_bomb:
-                self.leave_bomb()
-            else:
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[1] += 1
-            return "Moved"
-        elif isinstance(self.matrix[pos_i][pos_j+1], Block.Breakable):
-            return "Breakable"
+        return self.moving_aux((pos_i, pos_j), (pos_i, pos_j+1))
 
     def move_left(self):
         """
@@ -76,20 +116,13 @@ class Player (pygame.sprite.Sprite):
         :brief: If moving to the left is possible the player does it
         :return: An string indicating if the player moved
         """
+        if self.is_movement_denied:  # When a bomb hits the player
+            return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_j > 0:
             return "Out of bounds"
-        if isinstance(self.matrix[pos_i][pos_j - 1], Matrix.Blank):
-            self.matrix[pos_i][pos_j - 1] = self
-            if self.new_bomb:
-                self.leave_bomb()
-            else:
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[1] -= 1
-            return "Moved"
-        elif isinstance(self.matrix[pos_i][pos_j-1], Block.Breakable):
-            return "Breakable"
+        return self.moving_aux((pos_i, pos_j), (pos_i, pos_j-1))
 
     def move_up(self):
         """
@@ -97,20 +130,13 @@ class Player (pygame.sprite.Sprite):
         :brief: If moving up is possible the player does it
         :return: An string indicating if the player moved
         """
+        if self.is_movement_denied:  # When a bomb hits the player
+            return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_i > 0:
             return "Out of bounds"
-        if isinstance(self.matrix[pos_i - 1][pos_j], Matrix.Blank):
-            self.matrix[pos_i - 1][pos_j] = self
-            if self.new_bomb:
-                self.leave_bomb()
-            else:
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[0] -= 1
-            return "Moved"
-        elif isinstance(self.matrix[pos_i - 1][pos_j], Block.Breakable):
-            return "Breakable"
+        return self.moving_aux((pos_i, pos_j), (pos_i-1, pos_j))
 
     def move_down(self):
         """
@@ -118,26 +144,13 @@ class Player (pygame.sprite.Sprite):
         :brief: If moving down is possible the player does it
         :return: An string indicating if the player moved
         """
+        if self.is_movement_denied:  # When a bomb hits the player
+            return ""
         pos_i = self.get_x()
         pos_j = self.get_y()
         if not pos_i < Matrix.ROWS - 1:
             return "Out of bounds"
-        if isinstance(self.matrix[pos_i + 1][pos_j], Matrix.Blank):
-            self.matrix[pos_i + 1][pos_j] = self
-            if self.new_bomb:
-                self.leave_bomb()
-            else:
-                self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
-            self.position[0] += 1
-            return "Moved"
-        elif isinstance(self.matrix[pos_i+1][pos_j], Block.Breakable):
-            return "Breakable"
-
-    def set_bomb_radius(self, bomb_radius):
-        self.bomb_radius = bomb_radius
-
-    def set_bomb_radius(self, bomb_radius):
-        self.bomb_radius = bomb_radius
+        return self.moving_aux((pos_i, pos_j), (pos_i+1, pos_j))
 
     def leave_bomb(self):
         """
@@ -145,8 +158,42 @@ class Player (pygame.sprite.Sprite):
         """
         pos_i = self.get_x()
         pos_j = self.get_y()
-        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.bomb_radius)
+        bomb_radius = self.explosion_radius
+        if self.has_cross_bomb:
+            bomb_radius = max(Matrix.COLUMNS, Matrix.ROWS)
+            self.has_cross_bomb = False
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, bomb_radius)
         self.new_bomb = False
+
+    def kick_bomb(self, position):
+        """
+        Auxiliary method for the Shoe power up, changes
+        the position of the "kicked" bomb
+        """
+        pos_i = position[0]
+        pos_j = position[1]
+        self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
+        new_position_found = False
+        # Searches until it founds a Black position to add the bomb
+        while not new_position_found:
+            pos_i = random.randint(0, Matrix.ROWS - 1)
+            pos_j = random.randint(0, Matrix.COLUMNS - 1)
+            if isinstance(self.matrix[pos_i][pos_j], Matrix.Blank):
+                new_position_found = True
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.explosion_radius)
+        self.has_shoe = False
+
+    def lose_live(self):
+        """
+        Method that makes the player lose a live
+        kills the player if he reaches 0 lives
+        """
+        if not self.has_shield:
+            self.lives -= 1
+        if self.lives <= 0:
+            self.kill()  # Method from the pygame.Sprite class
+            return None
+        return self
 
 
 class User(Player):
@@ -165,8 +212,7 @@ class User(Player):
         # User stats
         self.lives = 3
         self.velocity = TIME_BETWEEN_MOVEMENTS
-        self.explosion_radius = 4
-        self.set_bomb_radius(self.explosion_radius)
+        self.explosion_radius = 2
 
     def __str__(self):
         """
@@ -179,13 +225,20 @@ class User(Player):
         """
         Method that reads the user movements from the keyboard
         """
+        if self.is_movement_denied:
+            return
         keys = pygame.key.get_pressed()
         # Leave bomb control
+
         if keys[pygame.K_o]:
+            actual_time_bomb = pygame.time.get_ticks()
+            if actual_time_bomb - self.last_bomb_time < TIME_BETWEEN_BOMBS:
+                return
+            self.last_bomb_time = actual_time_bomb
             self.new_bomb = True
         # Movement control
-        actual_time = pygame.time.get_ticks()
-        if actual_time - self.last_movement_time < self.velocity:
+        actual_time_move = pygame.time.get_ticks()
+        if actual_time_move - self.last_movement_time < self.velocity:
             return
         if keys[pygame.K_d]:
             self.move_right()
@@ -195,7 +248,7 @@ class User(Player):
             self.move_up()
         if keys[pygame.K_s]:
             self.move_down()
-        self.last_movement_time = actual_time
+        self.last_movement_time = actual_time_move
 
 
 class Enemy(Player, threading.Thread):
@@ -212,10 +265,10 @@ class Enemy(Player, threading.Thread):
         """
         super().__init__(position, matrix)
 
-        def define_stats():
+        def define_stats():  # Randomly define the stats
             lives = random.randrange(3, 6)
             velocity = random.randrange(5, 7)
-            explosion_radius = random.randrange(1, 3)
+            explosion_radius = random.randrange(2, 4)
             evasion = 14 - lives - velocity - explosion_radius
             stats = [lives, velocity, explosion_radius, evasion]
             return stats
@@ -225,7 +278,6 @@ class Enemy(Player, threading.Thread):
         self.velocity = enemy_stats[1]*100
         self.explosion_radius = enemy_stats[2]
         self.evasion = enemy_stats[3]
-        self.set_bomb_radius(self.explosion_radius)
 
         # Genetics
         self.genetics = GeneticAlgorithm.GeneticAlgorithm()
@@ -235,29 +287,36 @@ class Enemy(Player, threading.Thread):
         """
         Override from the Thread class
         :brief: allows the enemy to begin his thread
+        the enemy thread ends when the player dies
         """
         self.choose_next_action()
 
     def choose_next_action(self):
         """
         Execute a new action from the genetic algorithm
+        This function calls itself until the player dies
+        the recursion allows the enemy to never stop playing
         """
-        random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-1)
+        # Stop the movement if the player has no lives left
+        if self.lives <= 0:
+            return
+        random_number = random.randint(0, GeneticAlgorithm.CHROMOSOME_LENGTH-2)
         random_action = self.genetics.chromosome[random_number]
-        random_action = 2
         if random_action == 0:
             # Hide action
             self.hide_enemy()
-            pass
+            time.sleep(HIDING_TIME)
         elif random_action == 1:
             # Search power up
             self.search_a_power_up()
+            time.sleep(POWER_UP_SEARCH_TIME)
         elif random_action == 2:
             # Search an enemy
             self.search_an_enemy()
         elif random_action == 3:
             # Leave a bomb
-            self.leave_enemy_bomb()
+            self.leave_enemy_bomb
+        self.choose_next_action()
 
     def is_position_save(self, p_type, p_number):
         """
@@ -313,11 +372,9 @@ class Enemy(Player, threading.Thread):
                 save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         if save_movement != []:  # Empty list means that the actual position is safe
-            print(save_movement)
             self.move_enemy_aux(save_movement)
-        else:
-            print("The actual position is a save one")
 
+    @property
     def leave_enemy_bomb(self):
         """
         Action that leaves an enemy bomb
@@ -338,13 +395,11 @@ class Enemy(Player, threading.Thread):
 
         elif pos_i % 2 == 1 and pos_j % 2 == 0:  # Odd row and even column
             aux_movement = self.define_auxiliary_movements("column")
-            print(aux_movement)
             possible_movements = ["UR", "UL", "DR", "DL"] + aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
 
         elif pos_i % 2 == 0 and pos_j % 2 == 1:  # Even row and odd column
             aux_movement = self.define_auxiliary_movements("row")
-            print(aux_movement)
 
             possible_movements = ["RU", "RD", "LU", "LD"] + aux_movement
             save_movement = self.possible_movement_cases(pos_i, pos_j, possible_movements)
@@ -352,8 +407,9 @@ class Enemy(Player, threading.Thread):
         if save_movement != []:  # Empty list means that leaving a bomb is not save
             self.new_bomb = True
             self.move_enemy_aux(save_movement)
-        else:
-            print("Impossible to leave a bomb")
+            time.sleep(Fire.EXPLOSION_TIME / 1000)
+
+        return save_movement
 
     def define_auxiliary_movements(self, p_type):
         """
@@ -381,6 +437,7 @@ class Enemy(Player, threading.Thread):
         """
         Auxiliary method for the leave_enemy_bomb()
         :brief: determines which of the possible movements is possible
+        :return: result_route -> list of the movements
         """
         possible_movements = p_possible_movements
         result_route = []
@@ -440,7 +497,7 @@ class Enemy(Player, threading.Thread):
         :brief: given the closest power up the method
         uses the A* algorithm to move towards it
         """
-        closest_power_up_position = self.find_closest_object("chsz")  # chsz are all the possible power ups
+        closest_power_up_position = self.find_closest_object("+h@s")  # chsz are all the possible power ups
         if closest_power_up_position == []:
             return
         enemy_i = self.get_x()
@@ -463,14 +520,19 @@ class Enemy(Player, threading.Thread):
         enemy_j = self.get_y()
         target_i = closest_enemy_position[0]
         target_j = closest_enemy_position[1]
-        a_star_route = Route.Route(enemy_i, enemy_j, target_i, target_j)
-        self.move_enemy_aux(a_star_route.get_commands())
+        if isinstance(self, Enemy):
+            a_star_route = Route.Route(enemy_i, enemy_j, target_i, target_j)
+            self.move_enemy_aux(a_star_route.get_commands())
 
     def move_enemy_aux(self, movement_list):
         """
         Auxiliary method for moving based on the A* result
         """
         for movement in movement_list:
+            if self.lives <= 0:
+                return
+            if self.is_movement_denied:
+                break
             time.sleep(1)
             message = ""
             if movement == "up":
@@ -484,14 +546,27 @@ class Enemy(Player, threading.Thread):
 
             if message == "Breakable":
                 # Add a bomb and hide
-                self.leave_enemy_bomb()
-                """
-                Pending:
-                -> after leaving the bomb wait for it to explode
-                and then return to the actual position to continue the A*
-                -> analise the cases when the enemy hits another enemy or the user
-                """
+                movement_list = self.leave_enemy_bomb
+                if movement_list == []:
+                    break
+                return_route = self.get_back_to_position(movement_list) + [movement]
+                self.move_enemy_aux(return_route)
+            elif message == "Abort movement":
                 break
+
+    def get_back_to_position(self, movement_list):
+        return_route = []
+        for movement in movement_list:
+            if movement == "right":
+                return_route.append("left")
+            elif movement == "left":
+                return_route.append("right")
+            elif movement == "up":
+                return_route.append("down")
+            elif movement == "down":
+                return_route.append("up")
+        return_route.reverse()
+        return return_route
 
     def __str__(self):
         """

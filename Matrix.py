@@ -4,7 +4,7 @@ import random
 
 WHITE = (255, 255, 255)
 ROWS = 12
-COLUMNS = 18
+COLUMNS = 14
 
 
 class Matrix:
@@ -142,7 +142,6 @@ class Matrix:
             elif i == position[0]+1 and j == position[1]+1:
                 return True
         return False
-
 
     def add_players(self, positions):
         """Adds players to the matrix"""

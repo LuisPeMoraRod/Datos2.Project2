@@ -1,3 +1,7 @@
+import pygame
+
+# Constants
+EXPLOSION_TIME = 1000
 ORANGE = (230, 126, 34)
 
 
@@ -9,7 +13,7 @@ class Fire:
     def __init__(self, position):
         self.position = position
         self.color = ORANGE
-        self.on_fire = 0
+        self.start_fire = pygame.time.get_ticks()
 
     def __str__(self):
         """
@@ -19,7 +23,7 @@ class Fire:
         return "F"
 
     def check_fire_state(self):
-        if self.on_fire > 200:
+        actual_time = pygame.time.get_ticks()
+        if actual_time-self.start_fire > EXPLOSION_TIME:
             return True
-        self.on_fire += 1
         return False
