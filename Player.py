@@ -181,7 +181,7 @@ class Player (pygame.sprite.Sprite):
             pos_j = random.randint(0, Matrix.COLUMNS - 1)
             if isinstance(self.matrix[pos_i][pos_j], Matrix.Blank):
                 new_position_found = True
-        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.explosion_radius)
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.explosion_radius, self)
         self.has_shoe = False
 
     def lose_live(self):
