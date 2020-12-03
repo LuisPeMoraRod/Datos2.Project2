@@ -9,11 +9,12 @@ class Bomb:
     Class for the bombs objects
     """
 
-    def __init__(self, position, matrix, bomb_radius):
+    def __init__(self, position, matrix, bomb_radius, player):
         self.start_time = pygame.time.get_ticks()
         self.position = position
         self.matrix = matrix
         self.radius = bomb_radius
+        self.player = player
 
     def detonate(self):
         actual_time = pygame.time.get_ticks()

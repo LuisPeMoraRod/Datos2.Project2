@@ -1,4 +1,3 @@
-import pygame
 from GUI.Board import *
 import pyautogui
 
@@ -27,9 +26,9 @@ class MainWindow:
     def __create_window(self):
 
         pygame.init()
-        screen = pygame.display.set_mode((self.__WIDTH, self.__HEIGHT), pygame.NOFRAME)
+        screen = pygame.display.set_mode((int(self.__WIDTH*0.4), int(self.__HEIGHT*0.8)))
         pygame.display.set_caption('BomberTEC')
-        board = Board.get_instance(self.__WIDTH, self.__HEIGHT)
+        board = Board.get_instance(self.__WIDTH*0.4, self.__HEIGHT*0.8)
         board.enemies.update()
         # board.matrix.enemy0.update()
 
