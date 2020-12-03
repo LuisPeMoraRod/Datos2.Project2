@@ -2,12 +2,14 @@ import pygame
 from GUI.Board import *
 import pyautogui
 
+screen_width, screen_height = pyautogui.size()
 
 class MainWindow:
     __instance = None
     __bg_image = pygame.image.load("images/background.png")
     __done = False
-    __WIDTH, __HEIGHT = pyautogui.size()
+    __WIDTH = screen_width
+    __HEIGHT = int(screen_height*0.9)
 
     @staticmethod
     def get_instance():
@@ -27,7 +29,7 @@ class MainWindow:
     def __create_window(self):
 
         pygame.init()
-        screen = pygame.display.set_mode((self.__WIDTH, self.__HEIGHT), pygame.NOFRAME)
+        screen = pygame.display.set_mode((self.__WIDTH, self.__HEIGHT))
         pygame.display.set_caption('BomberTEC')
         board = Board.get_instance(self.__WIDTH, self.__HEIGHT)
         board.enemies.update()
