@@ -4,6 +4,9 @@ from Fire import *
 from Route import *
 import random
 import pygame.time
+from GUI.Window import *
+from GUI.Image import *
+import pyautogui
 
 # constants
 LIGHT_GREEN = (120, 187, 82)
@@ -19,13 +22,14 @@ PURPLE = (108, 52, 131)
 PINK = (240, 54, 192)
 WHITE = (255, 255, 255)
 ORANGE = (230, 126, 34)
-BLOCK_SIZE = 50
-ROWS = 12
-COLUMNS = 18
 TIME_BETWEEN_POWER_UPS = 5000
+
+ROWS = 12
+COLUMNS = 14
 
 
 class Board:
+
     # Class constants
     __instance = None
     matrix = Matrix.Matrix.get_instance()
@@ -38,17 +42,17 @@ class Board:
     enable_right = True
 
     @staticmethod
-    def get_instance():
+    def get_instance(window_width, window_height):
         """
         Singleton method get_instance()
         returns the only Board in the game or
         a new one if there is no Board
         """
         if Board.__instance is None:
-            return Board()
+            return Board(window_width, window_height)
         return Board.__instance
 
-    def __init__(self):
+    def __init__(self, window_width, window_heigth):
         """
         Class constructor
         """
@@ -61,28 +65,38 @@ class Board:
             self.killed_player_row = 0
             self.killed_player_column = 0
             self.last_power_up_time = pygame.time.get_ticks()
+            self.WIDTH = window_width
+            self.HEIGHT = window_heigth
+            self.BLOCK_SIZE = int(2 * self.WIDTH / 60)
+
+            images = Image.get_instance(self.BLOCK_SIZE)
+
 
     def draw_base(self, SCREEN):
         """
         Draws the base of the game board as it
         was a matrix fulled with Blanck objects
         """
-        pos_x = 5
-        pos_y = 2
-        # Alternates the colors of  the blanck spaces
-        for x in range(pos_x, COLUMNS + pos_x):
-            for y in range(pos_y, ROWS + pos_y):
-                if x % 2 == 0:
-                    if y % 2 == 0:
-                        color = LIGHT_GREEN
-                    else:
-                        color = DARK_GREEN
+        start_x = 7
+        start_y = 3
+        # Alternates the colors of  the blank spaces
+        for x in range(start_x, COLUMNS + start_x + 2):
+            for y in range(start_y, ROWS + start_y + 2):
+                if x == start_x or x == (COLUMNS + start_x + 1) or y == start_y or y == (ROWS + start_y + 1):
+                    color = DARK_GREY
                 else:
-                    if y % 2 == 0:
-                        color = DARK_GREEN
+                    if x % 2 == 0:
+                        if y % 2 == 0:
+                            color = LIGHT_GREEN
+                        else:
+                            color = DARK_GREEN
                     else:
-                        color = LIGHT_GREEN
-                rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        if y % 2 == 0:
+                            color = DARK_GREEN
+                        else:
+                            color = LIGHT_GREEN
+
+                rect = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                 pygame.draw.rect(SCREEN, color, rect)
 
     def draw_board(self, SCREEN):
@@ -90,8 +104,8 @@ class Board:
         Method that draws the game matrix, updates the matrix
         everytime it is called
         """
-        x = 5
-        y = 2
+        x = 8
+        y = 4
         row = 0
         column = 0
         for i in self.board_matrix:
@@ -99,23 +113,23 @@ class Board:
                 if not isinstance(j, Blank):
                     if isinstance(j, Unbreakable):
                         # Unbreakable blocks will have light gray color
-                        rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        rect = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, LIGHT_GREY, rect)
                     elif isinstance(j, Breakable):
                         # Breakable blocks will have brown color
-                        rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        rect = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BROWN, rect)
                     elif isinstance(j, User):
                         # Users will have yellow color
-                        user = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        user = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, YELLOW, user)
                     elif isinstance(j, Enemy):
                         # Enemies will have red color
-                        enemy = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        enemy = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, RED, enemy)
                     elif isinstance(j, Bomb):
                         # Bombs will have black color
-                        bomb = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        bomb = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BLACK, bomb)
                         # Bomb detonates after a certain amount of time defined in Bomb.py
                         detonate_bomb = j.detonate()
@@ -136,23 +150,23 @@ class Board:
                         self.restart_enables()
                     elif isinstance(j, Shoe):
                         # Shoe power ups will have purple color
-                        power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        power_up = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, PURPLE, power_up)
                     elif isinstance(j, CrossBomb):
                         # Crossbomb power ups will have white color
-                        power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        power_up = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, WHITE, power_up)
                     elif isinstance(j, Shield):
                         # Shield power ups will have blue color
-                        power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        power_up = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BLUE, power_up)
                     elif isinstance(j, Healing):
                         # Healing power ups will have pink color
-                        power_up = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        power_up = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, PINK, power_up)
                     elif isinstance(j, Fire):
                         # Fire positions will have orange color
-                        fire = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        fire = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, ORANGE, fire)
                         # The fire stops after a certain amount of time defined in Fire.py
                         off_fire = j.check_fire_state()
@@ -161,7 +175,7 @@ class Board:
 
                 x = x + 1
                 column = column + 1
-            x = 5
+            x = 8
             column = 0
 
             row = row + 1

@@ -4,7 +4,7 @@ import random
 
 WHITE = (255, 255, 255)
 ROWS = 12
-COLUMNS = 18
+COLUMNS = 14
 
 
 class Matrix:

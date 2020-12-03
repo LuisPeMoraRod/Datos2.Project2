@@ -1,16 +1,13 @@
-import sys
-from pygame.locals import *
+import pygame
 from GUI.Board import *
-
-
-HEIGHT = 700
-WIDTH = 1400
+import pyautogui
 
 
 class MainWindow:
     __instance = None
     __bg_image = pygame.image.load("images/background.png")
     __done = False
+    __WIDTH, __HEIGHT = pyautogui.size()
 
     @staticmethod
     def get_instance():
@@ -30,18 +27,18 @@ class MainWindow:
     def __create_window(self):
 
         pygame.init()
-        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
+        screen = pygame.display.set_mode((self.__WIDTH, self.__HEIGHT), pygame.NOFRAME)
         pygame.display.set_caption('BomberTEC')
-        board = Board.get_instance()
+        board = Board.get_instance(self.__WIDTH, self.__HEIGHT)
         board.enemies.update()
-        #board.matrix.enemy0.update()
+        # board.matrix.enemy0.update()
 
         while not self.__done:
             screen.blit(self.__bg_image, (0, 0))
             board.draw_base(screen)
             board.draw_board(screen)
             for event in pygame.event.get():
-                if event.type == QUIT:
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
