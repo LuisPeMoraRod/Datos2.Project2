@@ -21,6 +21,7 @@ TIME_BETWEEN_MOVEMENTS = 150
 TIME_BETWEEN_BOMBS = 1000
 HIDING_TIME = 0.5
 POWER_UP_SEARCH_TIME = 0.2
+LIVES = 3
 
 
 class Player (pygame.sprite.Sprite):
@@ -162,7 +163,7 @@ class Player (pygame.sprite.Sprite):
         if self.has_cross_bomb:
             bomb_radius = max(Matrix.COLUMNS, Matrix.ROWS)
             self.has_cross_bomb = False
-        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, bomb_radius)
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, bomb_radius, self)
         self.new_bomb = False
 
     def kick_bomb(self, position):
@@ -180,7 +181,7 @@ class Player (pygame.sprite.Sprite):
             pos_j = random.randint(0, Matrix.COLUMNS - 1)
             if isinstance(self.matrix[pos_i][pos_j], Matrix.Blank):
                 new_position_found = True
-        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.explosion_radius)
+        self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.explosion_radius, self)
         self.has_shoe = False
 
     def lose_live(self):
@@ -266,10 +267,10 @@ class Enemy(Player, threading.Thread):
         super().__init__(position, matrix)
 
         def define_stats():  # Randomly define the stats
-            lives = random.randrange(3, 6)
-            velocity = random.randrange(5, 7)
+            lives = LIVES
+            evasion = random.randrange(2, 4)
             explosion_radius = random.randrange(2, 4)
-            evasion = 14 - lives - velocity - explosion_radius
+            velocity = 14 - evasion - explosion_radius
             stats = [lives, velocity, explosion_radius, evasion]
             return stats
 
@@ -279,8 +280,10 @@ class Enemy(Player, threading.Thread):
         self.explosion_radius = enemy_stats[2]
         self.evasion = enemy_stats[3]
 
+        self.kills = 0  # number of kills achieved
+
         # Genetics
-        self.genetics = GeneticAlgorithm.GeneticAlgorithm()
+        self.genetics = GeneticAlgorithm.GeneticAlgorithm(self)
         threading.Thread.__init__(self)
 
     def run(self):

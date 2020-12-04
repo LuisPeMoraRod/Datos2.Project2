@@ -1,5 +1,6 @@
 from Block import *
 from Player import *
+from PlayersList import *
 import random
 
 WHITE = (255, 255, 255)
@@ -30,7 +31,9 @@ class Matrix:
             Matrix.__instance = self
             self.matrix = []
             self.positions = []
+            self.players = PlayersList.get_instance()
             self.generate_matrix()
+
 
     def __str__(self):
         """
@@ -194,6 +197,8 @@ class Matrix:
             i = player.get_x()
             j = player.get_y()
             self.matrix[i][j] = player
+
+        self.players.players_list = players
 
     def set_initial_positions(self):
         """

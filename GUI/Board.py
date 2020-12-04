@@ -128,24 +128,26 @@ class Board:
                         enemy = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, RED, enemy)
                     elif isinstance(j, Bomb):
+                        detonated_bomb = self.board_matrix[row][column]
                         # Bombs will have black color
                         bomb = pygame.Rect(x * self.BLOCK_SIZE, y * self.BLOCK_SIZE, self.BLOCK_SIZE, self.BLOCK_SIZE)
                         pygame.draw.rect(SCREEN, BLACK, bomb)
                         # Bomb detonates after a certain amount of time defined in Bomb.py
                         detonate_bomb = j.detonate()
                         if detonate_bomb:
+                            bomb_owner = detonated_bomb.player
                             # This iteration controls the places that will convert into Fire
                             # during an explosion
                             for k in range(1, j.radius):
                                 # j.radius represents the radius of the bomb
                                 if row - k >= 0 and self.enable_up:
-                                    self.enable_up = self.create_fire((j.position[0] - k, column))
+                                    self.enable_up = self.create_fire((j.position[0] - k, column), bomb_owner)
                                 if row + k < ROWS and self.enable_down:
-                                    self.enable_down = self.create_fire((j.position[0] + k, column))
+                                    self.enable_down = self.create_fire((j.position[0] + k, column), bomb_owner)
                                 if column - k >= 0 and self.enable_left:
-                                    self.enable_left = self.create_fire((row, j.position[1] - k))
+                                    self.enable_left = self.create_fire((row, j.position[1] - k), bomb_owner)
                                 if column + k < COLUMNS and self.enable_right:
-                                    self.enable_right = self.create_fire((row, j.position[1] + k))
+                                    self.enable_right = self.create_fire((row, j.position[1] + k), bomb_owner)
                             self.board_matrix[row][column] = Fire((row, column))
                         self.restart_enables()
                     elif isinstance(j, Shoe):
@@ -216,7 +218,7 @@ class Board:
                 shoe = Shoe(self.matrix)
                 self.matrix.matrix[shoe.get_x()][shoe.get_y()] = shoe
 
-    def create_fire(self, position):
+    def create_fire(self, position, bomb_owner):
         """
         Method that creates the fire objects needed in the explosion
         :brief: The fire doesn't destruct bombs nor unbreakable blocks
@@ -228,6 +230,8 @@ class Board:
         element = self.board_matrix[row][column]
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
+                bomb_owner.kills += 1
+                print(str(bomb_owner)+" "+"kills: "+str(bomb_owner.kills))
                 self.killed_player = element.lose_live()
                 self.killed_player_row = row
                 self.killed_player_column = column
