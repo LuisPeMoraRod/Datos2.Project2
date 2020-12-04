@@ -280,6 +280,8 @@ class Enemy(Player, threading.Thread):
         self.explosion_radius = enemy_stats[2]
         self.evasion = enemy_stats[3]
 
+        self.kills = 0  # number of kills achieved
+
         # Genetics
         self.genetics = GeneticAlgorithm.GeneticAlgorithm(self)
         threading.Thread.__init__(self)
