@@ -198,7 +198,11 @@ class Matrix:
             j = player.get_y()
             self.matrix[i][j] = player
 
-        self.players.players_list = players
+        self.players.players_list = []
+        for i in range(0, len(players)-1):
+            self.players.players_list.append(players[i])
+
+
 
     def set_initial_positions(self):
         """

@@ -54,6 +54,8 @@ class Player (pygame.sprite.Sprite):
         self.explosion_radius = 0
         self.lives = 0
 
+        self.kills = 0  # number of kills achieved
+
     def get_x(self):
         """:return: current row"""
         return self.position[0]
@@ -280,10 +282,8 @@ class Enemy(Player, threading.Thread):
         self.explosion_radius = enemy_stats[2]
         self.evasion = enemy_stats[3]
 
-        self.kills = 0  # number of kills achieved
-
         # Genetics
-        self.genetics = GeneticAlgorithm.GeneticAlgorithm(self)
+        self.genetics = GeneticAlgorithm.Genes(self)
         threading.Thread.__init__(self)
 
     def run(self):
