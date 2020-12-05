@@ -55,6 +55,7 @@ class Player (pygame.sprite.Sprite):
         self.lives = 0
 
         self.kills = 0  # number of kills achieved
+        self.nearest_bomb = 10000000  # distance of nearest bomb to User
 
     def get_x(self):
         """:return: current row"""

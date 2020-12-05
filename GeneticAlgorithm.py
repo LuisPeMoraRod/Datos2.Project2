@@ -5,7 +5,7 @@ from PlayersList import *
 # Constants
 CHROMOSOME_LENGTH = 100
 AMOUNT_OF_ACTIONS = 4
-AMOUNT_OF_MUTATIONS = 3
+AMOUNT_OF_MUTATIONS = 15
 CROSSOVER_TIME = 20000
 
 
@@ -40,7 +40,6 @@ class Genes:
             chromosome[index] = 0
         return chromosome
 
-
     def hide_indexes(self, probability):
         """
         Define the indexes of the chromosomes list which will be changed to hiding action
@@ -61,10 +60,15 @@ class GeneticAlgorithm:
     """
     Class in charge of executing genetic algorithm
     """
+
     def __init__(self):
         self.players = PlayersList.get_instance()
         self.players_list = self.players.players_list
         self.last_crossover = 0
+        self.user = None
+
+    def set_user(self, user):
+        self.user = user
 
     def combine(self, genes_list, enemy):
         """
@@ -80,42 +84,65 @@ class GeneticAlgorithm:
             if cross:
                 enemy.genetics.chromosome[i] = genes_list[i]
 
-    def mutate(self):
+    def mutate(self, enemy):
         """
-        Method that mutates three of the genes of every chromosome
+        Method that mutates 15 of the genes of every chromosome
         This mutation is completely random
         """
         for i in range(0, AMOUNT_OF_MUTATIONS):
             chosen_gene = random.randint(0, CHROMOSOME_LENGTH - 1)
             new_action = random.randint(0, AMOUNT_OF_ACTIONS)
-            self.chromosome[chosen_gene] = new_action
+            enemy.genetics.chromosome[chosen_gene] = new_action
 
-    def fitness(self):
+    def fitness_kills(self):
         """
-        Method that selects the mvp since the last crossover depending on two factors: most amount of kills and nearest bomb to User player
+        Method that selects the mvp since the last crossover depending who made the most amount of kills
         :return:
         """
         mvp = self.players_list[0]
         best_score = mvp.kills
-        for player in self.players_list:
-            if player.kills > best_score:
-                best_score = player.kills
-                mvp = player
+        for i in range(0, len(self.players_list) - 1):
+            if self.players_list[i].kills > best_score:
+                best_score = self.players_list[i].kills
+                mvp = self.players_list[i]
+        return mvp
+
+    def fitness_nearest_bomb(self):
+        """
+        Method that selects the mvp considering the enemy who put the nearest bomb to the User
+        :return:
+        """
+        mvp = self.players_list[0]
+        best_score = mvp.nearest_bomb
+        for i in range(0, len(self.players_list) - 1):
+            if self.players_list[i].nearest_bomb < best_score:
+                best_score = self.players_list[i].nearest_bomb
+                mvp = self.players_list[i]
         return mvp
 
     def crossover(self, current_time):
+        """
+        Executes crossover. Selects 2 best players: the one with most kills since the last crossover and the one who put
+        :param current_time:
+        :return:
+        """
         if current_time - self.last_crossover > CROSSOVER_TIME:
-            mvp = self.fitness()
             self.last_crossover = current_time
-            print("MVP: " + str(mvp) + ", kills: "+str(mvp.kills))
-            genes = mvp.genetics.chromosome
+            mvp1 = self.fitness_kills()
+            genes1 = mvp1.genetics.chromosome
 
-            for player in self.players_list:
-                self.combine(genes, player)
-                player.kills = 0
+            is_user_alive = True
+            user = self.players_list[-1]
+            if user.lose_live() is not None:
+                is_user_alive = False
 
+            if is_user_alive:
+                mvp2 = self.fitness_nearest_bomb()
+                genes2 = mvp2.genetics.chromosome
 
-
-
-
-
+            for i in range(0, len(self.players_list) - 1):
+                self.combine(genes1, self.players_list[i])
+                self.players_list[i].kills = 0
+                if is_user_alive:
+                    self.combine(genes2, self.players_list[i])
+                self.mutate(self.players_list[i])

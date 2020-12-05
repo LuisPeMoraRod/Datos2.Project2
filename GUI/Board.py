@@ -6,6 +6,7 @@ import random
 import pygame.time
 from GUI.Window import *
 from GUI.Image import *
+from Bomb import *
 import pyautogui
 
 # constants
@@ -231,7 +232,6 @@ class Board:
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
                 bomb_owner.kills += 1
-                print(str(bomb_owner)+" "+"kills: "+str(bomb_owner.kills))
                 self.killed_player = element.lose_live()
                 self.killed_player_row = row
                 self.killed_player_column = column

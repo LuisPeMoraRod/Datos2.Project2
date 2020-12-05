@@ -192,6 +192,7 @@ class Matrix:
         self.user = User(positions[index], self)
         players.append(self.user)
 
+
         for k in range(0, len(players)):  # assign players to the matrix
             player = players[k]
             i = player.get_x()
@@ -199,7 +200,7 @@ class Matrix:
             self.matrix[i][j] = player
 
         self.players.players_list = []
-        for i in range(0, len(players)-1):
+        for i in range(0, len(players)):
             self.players.players_list.append(players[i])
 
 
