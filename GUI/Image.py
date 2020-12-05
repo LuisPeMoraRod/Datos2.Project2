@@ -53,6 +53,15 @@ class Image:
             self.e6_portrait = self.__load_image("images/enemy7.png", block_size * 2)
             self.user_portrait = self.__load_image("images/user_portrait.png", block_size * 4)
 
+            self.shoe_e_collected = self.__load_image("images/shoe.png", int(0.5*block_size))
+            self.shield_e_collected  = self.__load_image("images/shield.png", int(0.5*block_size))
+            self.cross_bomb_e_collected  = self.__load_image("images/cross_bomb.png", int(0.5*block_size))
+
+            self.shoe_e_stat = self.__load_image("images/shoe2.png", int(0.5*block_size))
+            self.shield_e_stat = self.__load_image("images/shield2.png", int(0.5*block_size))
+            self.cross_bomb_e_stat = self.__load_image("images/cross_bomb2.png", int(0.5*block_size))
+
+
             self.title = self.__load_titles("images/title.png", block_size, 0.4)
             self.enemy_title = self.__load_titles("images/enemy_title.png", block_size, 0.15)
 

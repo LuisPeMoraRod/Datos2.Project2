@@ -260,8 +260,60 @@ class Board:
 
     def draw_stats(self, screen):
 
-        left_column_x = self.WIDTH - 0.99*self.WIDTH
-        start_y = self.HEIGHT - 0.9*self.HEIGHT
+        e_portrait_width = self.images.e0_portrait.get_width()
+        e_portrait_height = self.images.e0_portrait.get_height()
+        pu_stat_width = self.images.cross_bomb_e_stat.get_width()
+        pu_stat_height = self.images.cross_bomb_e_stat.get_height()
+
+        pos_x = self.WIDTH - 0.99 * self.WIDTH + e_portrait_width + 2
+        start_y = self.HEIGHT - 0.9 * self.HEIGHT
+
+        self.draw_portraits(screen)
+
+        self.draw_pu_stats(pos_x, start_y, screen, self.matrix.enemy0)
+        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 2 + 1, screen, self.matrix.enemy1)
+        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 4 + 1, screen, self.matrix.enemy2)
+        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 6 + 1, screen, self.matrix.enemy3)
+        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 8 + 1, screen, self.matrix.enemy4)
+        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 10 + 1, screen, self.matrix.enemy5)
+        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 12 + 1, screen, self.matrix.enemy6)
+
+
+    def draw_titles(self, screen):
+
+        game_name = self.images.title
+        enemy_title = self.images.enemy_title
+
+        screen.blit(enemy_title, (self.WIDTH - 0.95*self.WIDTH, self.HEIGHT - 0.98*self.HEIGHT))
+        screen.blit(game_name, (self.WIDTH/2 - (game_name.get_width()/2), self.HEIGHT - 0.99*self.HEIGHT))
+
+    def draw_pu_stats(self, pos_x, pos_y, screen, enemy):
+
+        e_portrait_width = self.images.e0_portrait.get_width()
+        e_portrait_height = self.images.e0_portrait.get_height()
+        pu_stat_width = self.images.cross_bomb_e_stat.get_width()
+        pu_stat_height = self.images.cross_bomb_e_stat.get_height()
+
+        if enemy.has_shoe:
+            shoe_stat = self.images.shoe_e_collected
+        else:
+            shoe_stat = self.images.shoe_e_stat
+        if enemy.has_shield:
+            shield_stat = self.images.shield_e_collected
+        else:
+            shield_stat = self.images.shield_e_stat
+        if enemy.has_cross_bomb:
+            cross_bomb_stat = self.images.cross_bomb_e_collected
+        else:
+            cross_bomb_stat = self.images.cross_bomb_e_stat
+
+        screen.blit(shoe_stat, (pos_x, pos_y +10))
+        screen.blit(shield_stat, (pos_x, pos_y + e_portrait_height/2 - pu_stat_height/2))
+        screen.blit(cross_bomb_stat, (pos_x, pos_y + e_portrait_height - pu_stat_height-10))
+
+    def draw_portraits(self, screen):
+        pos_x = self.WIDTH - 0.99 * self.WIDTH
+        start_y = self.HEIGHT - 0.9 * self.HEIGHT
 
         e0p = self.images.e0_portrait
         e1p = self.images.e1_portrait
@@ -272,19 +324,11 @@ class Board:
         e6p = self.images.e6_portrait
         user_p = self.images.user_portrait
 
-        screen.blit(e0p, (left_column_x, start_y))
-        screen.blit(e1p, (left_column_x, start_y + self.BLOCK_SIZE*2 + 1))
-        screen.blit(e2p, (left_column_x, start_y + self.BLOCK_SIZE*4 + 1))
-        screen.blit(e3p, (left_column_x, start_y + self.BLOCK_SIZE*6 + 1))
-        screen.blit(e4p, (left_column_x, start_y + self.BLOCK_SIZE * 8 + 1))
-        screen.blit(e5p, (left_column_x, start_y + self.BLOCK_SIZE * 10 + 1))
-        screen.blit(e6p, (left_column_x, start_y + self.BLOCK_SIZE * 12 + 1))
-        screen.blit(user_p, (self.WIDTH - 0.18*self.WIDTH, start_y + self.BLOCK_SIZE + 2))
-
-    def draw_titles(self, screen):
-
-        game_name = self.images.title
-        enemy_title = self.images.enemy_title
-
-        screen.blit(enemy_title, (self.WIDTH - 0.95*self.WIDTH, self.HEIGHT - 0.98*self.HEIGHT))
-        screen.blit(game_name, (self.WIDTH/2 - (game_name.get_width()/2), self.HEIGHT - 0.99*self.HEIGHT))
+        screen.blit(e0p, (pos_x, start_y))
+        screen.blit(e1p, (pos_x, start_y + self.BLOCK_SIZE * 2 + 1))
+        screen.blit(e2p, (pos_x, start_y + self.BLOCK_SIZE * 4 + 1))
+        screen.blit(e3p, (pos_x, start_y + self.BLOCK_SIZE * 6 + 1))
+        screen.blit(e4p, (pos_x, start_y + self.BLOCK_SIZE * 8 + 1))
+        screen.blit(e5p, (pos_x, start_y + self.BLOCK_SIZE * 10 + 1))
+        screen.blit(e6p, (pos_x, start_y + self.BLOCK_SIZE * 12 + 1))
+        screen.blit(user_p, (self.WIDTH - 0.18 * self.WIDTH, start_y + self.BLOCK_SIZE + 2))
