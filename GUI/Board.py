@@ -202,8 +202,9 @@ class Board:
         Auxiliary method to create power ups every certain
         amount of time in the matrix
         """
+        power_ups = self.count_power_ups()
         # A power up will be generated after a certain amount of time
-        if actual_time - self.last_power_up_time > TIME_BETWEEN_POWER_UPS:
+        if actual_time - self.last_power_up_time > TIME_BETWEEN_POWER_UPS and power_ups < 3: # maximum 3 power ups at the same time
             self.last_power_up_time = actual_time
             power_up_number = random.randint(0, 3)  # Random power up
             if power_up_number == 0:
@@ -218,6 +219,14 @@ class Board:
             elif power_up_number == 3:
                 shoe = Shoe(self.matrix)
                 self.matrix.matrix[shoe.get_x()][shoe.get_y()] = shoe
+
+    def count_power_ups(self):
+        counter = 0
+        for i in range(len(self.board_matrix)):
+            for j in range(len(self.board_matrix[i])):
+                if isinstance(self.board_matrix[i][j], PowerUp):
+                    counter += 1
+        return counter
 
     def create_fire(self, position, bomb_owner):
         """
