@@ -65,33 +65,46 @@ class Board:
         Draws the base of the game board as it
         was a matrix fulled with Blanck objects
         """
-        start_x = 7
-        start_y = 2
+        start_x = self.WIDTH/2 - self.BLOCK_SIZE*COLUMNS/2-self.BLOCK_SIZE
+        start_y = self.HEIGHT/2 - self.BLOCK_SIZE*ROWS/2-self.BLOCK_SIZE
         # Alternates the colors of  the blank spaces
-        for x in range(start_x, COLUMNS + start_x + 2):
-            for y in range(start_y, ROWS + start_y + 2):
-                if x == start_x or x == (COLUMNS + start_x + 1) or y == start_y or y == (ROWS + start_y + 1):
+
+        light_grass = True
+        dark_grass = False
+
+        x = start_x
+        y = start_y
+
+        while y < start_y + self.BLOCK_SIZE*ROWS + 2*self.BLOCK_SIZE:
+            while x < start_x + self.BLOCK_SIZE*COLUMNS + 2*self.BLOCK_SIZE:
+                if x == start_x or x == start_x + self.BLOCK_SIZE*COLUMNS + self.BLOCK_SIZE or y == start_y or y == start_y + self.BLOCK_SIZE*ROWS + self.BLOCK_SIZE:
                     element = self.images.border
                 else:
-                    if x % 2 == 0:
-                        if y % 2 == 0:
-                            element = self.images.light_grass
-                        else:
-                            element = self.images.dark_grass
-                    else:
-                        if y % 2 == 0:
-                            element = self.images.dark_grass
-                        else:
-                            element = self.images.light_grass
-                SCREEN.blit(element, (x * self.BLOCK_SIZE, y * self.BLOCK_SIZE))
+                    if light_grass:
+                        light_grass = False
+                        dark_grass = True
+                        element = self.images.light_grass
+                    elif dark_grass:
+                        dark_grass = False
+                        light_grass = True
+                        element = self.images.dark_grass
+                SCREEN.blit(element, (x, y))
+                x = x + self.BLOCK_SIZE
+            light_grass = not light_grass
+            dark_grass = not dark_grass
+            x = start_x
+            y = y + self.BLOCK_SIZE
 
     def draw_board(self, SCREEN):
         """
         Method that draws the game matrix, updates the matrix
         everytime it is called
         """
-        x = 8
-        y = 3
+
+        start_x = self.WIDTH / 2 - (self.BLOCK_SIZE * COLUMNS / 2)
+        start_y = self.HEIGHT / 2 - (self.BLOCK_SIZE * ROWS / 2)
+        x = start_x
+        y = start_y
         row = 0
         column = 0
         for i in self.board_matrix:
@@ -162,14 +175,14 @@ class Board:
                         if off_fire:
                             self.create_blank((row, column))
 
-                    SCREEN.blit(element, (x * self.BLOCK_SIZE, y * self.BLOCK_SIZE))
-                x = x + 1
+                    SCREEN.blit(element, (x, y))
+                x = x + self.BLOCK_SIZE
                 column = column + 1
-            x = 8
+            x = start_x
             column = 0
 
             row = row + 1
-            y = y + 1
+            y = y + self.BLOCK_SIZE
 
     def create_players_group(self):
         """
