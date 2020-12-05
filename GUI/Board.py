@@ -9,19 +9,6 @@ from GUI.Image import *
 import pyautogui
 
 # constants
-LIGHT_GREEN = (120, 187, 82)
-DARK_GREEN = (113, 177, 76)
-DARK_GREY = (61, 64, 75)
-LIGHT_GREY = (145, 147, 156)
-BROWN = (169, 109, 69)
-YELLOW = (233, 247, 14)
-RED = (247, 14, 14)
-BLACK = (0, 0, 0)
-BLUE = (0, 168, 187)
-PURPLE = (108, 52, 131)
-PINK = (240, 54, 192)
-WHITE = (255, 255, 255)
-ORANGE = (230, 126, 34)
 TIME_BETWEEN_POWER_UPS = 5000
 
 ROWS = 12
@@ -49,6 +36,7 @@ class Board:
         a new one if there is no Board
         """
         if Board.__instance is None:
+            print(window_width, window_height)
             return Board(window_width, window_height)
         return Board.__instance
 
@@ -67,7 +55,7 @@ class Board:
             self.last_power_up_time = pygame.time.get_ticks()
             self.WIDTH = window_width
             self.HEIGHT = window_heigth
-            self.BLOCK_SIZE = int(2 * self.WIDTH / 60)
+            self.BLOCK_SIZE = int(self.WIDTH / 30)
 
             self.images = Image.get_instance(self.BLOCK_SIZE)
 
@@ -269,3 +257,34 @@ class Board:
         self.enable_right = True
         self.enable_left = True
         self.enable_down = True
+
+    def draw_stats(self, screen):
+
+        left_column_x = self.WIDTH - 0.99*self.WIDTH
+        start_y = self.HEIGHT - 0.9*self.HEIGHT
+
+        e0p = self.images.e0_portrait
+        e1p = self.images.e1_portrait
+        e2p = self.images.e2_portrait
+        e3p = self.images.e3_portrait
+        e4p = self.images.e4_portrait
+        e5p = self.images.e5_portrait
+        e6p = self.images.e6_portrait
+        user_p = self.images.user_portrait
+
+        screen.blit(e0p, (left_column_x, start_y))
+        screen.blit(e1p, (left_column_x, start_y + self.BLOCK_SIZE*2 + 1))
+        screen.blit(e2p, (left_column_x, start_y + self.BLOCK_SIZE*4 + 1))
+        screen.blit(e3p, (left_column_x, start_y + self.BLOCK_SIZE*6 + 1))
+        screen.blit(e4p, (left_column_x, start_y + self.BLOCK_SIZE * 8 + 1))
+        screen.blit(e5p, (left_column_x, start_y + self.BLOCK_SIZE * 10 + 1))
+        screen.blit(e6p, (left_column_x, start_y + self.BLOCK_SIZE * 12 + 1))
+        screen.blit(user_p, (self.WIDTH - 0.18*self.WIDTH, start_y + self.BLOCK_SIZE + 2))
+
+    def draw_titles(self, screen):
+
+        game_name = self.images.title
+        enemy_title = self.images.enemy_title
+
+        screen.blit(enemy_title, (self.WIDTH - 0.95*self.WIDTH, self.HEIGHT - 0.98*self.HEIGHT))
+        screen.blit(game_name, (self.WIDTH/2 - (game_name.get_width()/2), self.HEIGHT - 0.99*self.HEIGHT))

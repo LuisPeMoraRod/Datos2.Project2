@@ -12,7 +12,7 @@ class Image:
 
     def __init__(self, block_size):
         if Image.__instance is not None:
-            raise Exception("There's already an Image class instantiated!")
+            raise Exception("There's already an Image object instantiated!")
 
         else:
             Image.__instance = self
@@ -44,7 +44,25 @@ class Image:
 
             self.user = self.__load_image("images/user.png", block_size + 1)
 
+            self.e0_portrait = self.__load_image("images/enemy1.png", block_size*2)
+            self.e1_portrait = self.__load_image("images/enemy3.png", block_size * 2)
+            self.e2_portrait = self.__load_image("images/enemy2.png", block_size * 2)
+            self.e3_portrait = self.__load_image("images/enemy4.png", block_size * 2)
+            self.e4_portrait = self.__load_image("images/enemy6.png", block_size * 2)
+            self.e5_portrait = self.__load_image("images/enemy5.png", block_size * 2)
+            self.e6_portrait = self.__load_image("images/enemy7.png", block_size * 2)
+            self.user_portrait = self.__load_image("images/user_portrait.png", block_size * 4)
+
+            self.title = self.__load_titles("images/title.png", block_size, 0.4)
+            self.enemy_title = self.__load_titles("images/enemy_title.png", block_size, 0.15)
+
     def __load_image(self, path, block_size):
         image = pygame.image.load(path)
         image = pygame.transform.scale(image, (block_size, block_size))
         return image
+
+    def __load_titles(self, path, block_size, title_proportion):
+        title_width = 30*block_size*title_proportion
+        title = pygame.image.load(path)
+        title = pygame.transform.scale(title, (int(title_width), int(title_width/7)))
+        return title

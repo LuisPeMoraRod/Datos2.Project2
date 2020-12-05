@@ -6,7 +6,7 @@ screen_width, screen_height = pyautogui.size()
 
 class MainWindow:
     __instance = None
-    __bg_image = pygame.image.load("images/background.png")
+    __bg_image = pygame.image.load("images/background.jpg")
     __done = False
     __WIDTH = screen_width
     __HEIGHT = int(screen_height*0.9)
@@ -39,6 +39,8 @@ class MainWindow:
             screen.blit(self.__bg_image, (0, 0))
             board.draw_base(screen)
             board.draw_board(screen)
+            board.draw_stats(screen)
+            board.draw_titles(screen)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
