@@ -6,6 +6,7 @@ import random
 import pygame.time
 from GUI.Window import *
 from GUI.Image import *
+from Bomb import *
 import pyautogui
 
 # constants
@@ -22,7 +23,7 @@ PURPLE = (108, 52, 131)
 PINK = (240, 54, 192)
 WHITE = (255, 255, 255)
 ORANGE = (230, 126, 34)
-TIME_BETWEEN_POWER_UPS = 5000
+TIME_BETWEEN_POWER_UPS = 10000
 
 ROWS = 12
 COLUMNS = 14
@@ -231,7 +232,6 @@ class Board:
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
                 bomb_owner.kills += 1
-                print(str(bomb_owner)+" "+"kills: "+str(bomb_owner.kills))
                 self.killed_player = element.lose_live()
                 self.killed_player_row = row
                 self.killed_player_column = column

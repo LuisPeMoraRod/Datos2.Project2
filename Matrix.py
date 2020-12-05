@@ -192,13 +192,18 @@ class Matrix:
         self.user = User(positions[index], self)
         players.append(self.user)
 
+
         for k in range(0, len(players)):  # assign players to the matrix
             player = players[k]
             i = player.get_x()
             j = player.get_y()
             self.matrix[i][j] = player
 
-        self.players.players_list = players
+        self.players.players_list = []
+        for i in range(0, len(players)):
+            self.players.players_list.append(players[i])
+
+
 
     def set_initial_positions(self):
         """
