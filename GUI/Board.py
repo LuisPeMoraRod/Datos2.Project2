@@ -312,6 +312,15 @@ class Board:
         screen.blit(shield_stat, (pos_x, pos_y + e_portrait_height / 2 - pu_stat_height / 2))
         screen.blit(cross_bomb_stat, (pos_x, pos_y + e_portrait_height - pu_stat_height - 10))
 
+        lb_lives = self.generate_label(int(0.35*self.BLOCK_SIZE), "Lives: " + str(player.lives))
+        lb_velocity = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Velocity: " + str(player.velocity))
+        lb_explosion_radius = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Bomb radius: " + str(player.explosion_radius))
+        lb_evasion = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Evasion: " + str(player.evasion))
+        screen.blit(lb_lives, (pos_x + pu_stat_width + 10, pos_y +10))
+        screen.blit(lb_velocity, (pos_x + pu_stat_width + 10, pos_y + 10 + 0.35 * self.BLOCK_SIZE))
+        screen.blit(lb_explosion_radius, (pos_x + pu_stat_width + 10, pos_y + 10 + 2*(0.35 * self.BLOCK_SIZE)))
+        screen.blit(lb_evasion, (pos_x + pu_stat_width + 10, pos_y + 10 + 3*(0.35 * self.BLOCK_SIZE)))
+
     def draw_upu_stats(self, screen, player):
 
         u_portrait_height = self.images.user_portrait.get_height()
@@ -321,9 +330,12 @@ class Board:
 
         shoe_stat, shield_stat, cross_bomb_stat = self.check_power_up(player)
 
+        lb_lives = self.generate_label(int(0.5*self.BLOCK_SIZE), "Lives: " + str(player.lives))
+
         screen.blit(shoe_stat, (pos_x, pos_y))
-        screen.blit(shield_stat, (pos_x + u_portrait_width/2 - shield_stat.get_width()/2, pos_y))
+        screen.blit(shield_stat, (pos_x + u_portrait_width / 2 - shield_stat.get_width() / 2, pos_y))
         screen.blit(cross_bomb_stat, (pos_x + u_portrait_width - cross_bomb_stat.get_width(), pos_y))
+        screen.blit(lb_lives, (pos_x, pos_y + shoe_stat.get_height()+10))
 
     def check_power_up(self, player):
 
@@ -378,3 +390,10 @@ class Board:
         screen.blit(e5p, (pos_x, start_y + self.BLOCK_SIZE * 10 + 1))
         screen.blit(e6p, (pos_x, start_y + self.BLOCK_SIZE * 12 + 1))
         screen.blit(user_p, (self.WIDTH - 0.18 * self.WIDTH, start_y + self.BLOCK_SIZE + 2))
+
+    def generate_label(self, size, text):
+
+        my_font = pygame.font.SysFont("monospace", size)
+        label = my_font.render(text, 1, (255, 255, 255))
+
+        return label
