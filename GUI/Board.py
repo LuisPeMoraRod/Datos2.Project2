@@ -9,6 +9,7 @@ from GUI.Image import *
 from Bomb import *
 import pyautogui
 import PlayersList
+import threading
 
 # constants
 
@@ -248,6 +249,7 @@ class Board:
                     counter += 1
         return counter
 
+
     def create_fire(self, position, bomb_owner):
         """
         Method that creates the fire objects needed in the explosion
@@ -261,14 +263,11 @@ class Board:
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
                 bomb_owner.kills += 1
-                self.killed_player = element.lose_live("Kill")
+                #element.is_movement_denied = True
                 self.killed_player_row = row
                 self.killed_player_column = column
-                if self.killed_player is None:  # This happens when the player dies
-                    self.board_matrix[row][column] = Fire(position)
-                    return True
-                # When the player is being bombed the movement stops
-                self.killed_player.is_movement_denied = True
+                element.lose_live("Kill")
+                self.killed_player = element
             self.board_matrix[row][column] = Fire(position)
             if isinstance(element, Breakable) or isinstance(element, Bomb):
                 return False
@@ -283,13 +282,14 @@ class Board:
         """
         row = position[0]
         column = position[1]
-        if self.killed_player is None:
-            self.board_matrix[row][column] = Blank((row, column))
-        elif self.killed_player_row == row \
-                and self.killed_player_column == column:
+        if self.killed_player_row == row \
+                and self.killed_player_column == column\
+                and isinstance(self.killed_player, Player.Player)\
+                and self.killed_player.lives > 0:
             self.board_matrix[row][column] = self.killed_player
-            self.killed_player.is_movement_denied = False
             self.killed_player = None
+        else:
+            self.board_matrix[row][column] = Blank((row, column))
 
     def restart_enables(self):
         """

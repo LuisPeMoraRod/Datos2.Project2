@@ -81,10 +81,14 @@ class Player (pygame.sprite.Sprite):
         3) Abort movement -> indicates the player to stop moving
         """
         # Activate  a power up if it follows the movement
+        if self.lives == 0:
+            return ""
         if isinstance(self.matrix[next_pos[0]][next_pos[1]], PowerUp.PowerUp):
             self.matrix[next_pos[0]][next_pos[1]].activate(self)
         # Do the normal movement when the next position is Blank
         if isinstance(self.matrix[next_pos[0]][next_pos[1]], Matrix.Blank):
+            if self.lives == 0:
+                return ""
             self.matrix[next_pos[0]][next_pos[1]] = self
             if self.new_bomb:
                 self.leave_bomb()
@@ -202,9 +206,8 @@ class Player (pygame.sprite.Sprite):
             if not self.has_shield and self.lives > 0:
                 self.lives -= 1
             if self.lives <= 0:
-                self.kill()  # Method from the pygame.Sprite class
-                return None
-            return self
+                return "Killed"
+            return "Alive"
 
 
 class User(Player):
