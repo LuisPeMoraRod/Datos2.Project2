@@ -191,6 +191,7 @@ class Player (pygame.sprite.Sprite):
         """
         Method that makes the player lose a live
         kills the player if he reaches 0 lives
+        :param: action -> indicates what do we want with this method
         """
         if action == "Test":
             if self.lives == 1:
