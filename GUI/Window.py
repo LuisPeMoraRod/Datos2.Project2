@@ -3,12 +3,14 @@ from GeneticAlgorithm import *
 import pyautogui
 import pygame
 
+screen_width, screen_height = pyautogui.size()
 
 class MainWindow:
     __instance = None
-    __bg_image = pygame.image.load("images/background.png")
+    __bg_image = pygame.image.load("images/background.jpg")
     __done = False
-    __WIDTH, __HEIGHT = pyautogui.size()
+    __WIDTH = screen_width
+    __HEIGHT = int(screen_height*0.9)
 
     @staticmethod
     def get_instance():
@@ -28,9 +30,10 @@ class MainWindow:
     def __create_window(self):
 
         pygame.init()
-        screen = pygame.display.set_mode((int(self.__WIDTH*0.4), int(self.__HEIGHT*0.8)))
+        screen = pygame.display.set_mode((self.__WIDTH, self.__HEIGHT))
+
         pygame.display.set_caption('BomberTEC')
-        board = Board.get_instance(self.__WIDTH*0.4, self.__HEIGHT*0.8)
+        board = Board.get_instance(self.__WIDTH, self.__HEIGHT)
         board.enemies.update()
         genetic_algorithm = GeneticAlgorithm()
         # board.matrix.enemy0.update()
@@ -39,6 +42,8 @@ class MainWindow:
             screen.blit(self.__bg_image, (0, 0))
             board.draw_base(screen)
             board.draw_board(screen)
+            board.draw_stats(screen)
+            board.draw_titles(screen)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
