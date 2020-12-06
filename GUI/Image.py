@@ -61,6 +61,14 @@ class Image:
             self.shield_e_stat = self.__load_image("images/shield2.png", int(0.5*block_size))
             self.cross_bomb_e_stat = self.__load_image("images/cross_bomb2.png", int(0.5*block_size))
 
+            self.shoe_u_collected = self.__load_image("images/shoe.png", int(block_size))
+            self.shield_u_collected = self.__load_image("images/shield.png", int(block_size))
+            self.cross_bomb_u_collected = self.__load_image("images/cross_bomb.png", int(block_size))
+
+            self.shoe_u_stat = self.__load_image("images/shoe2.png", int(block_size))
+            self.shield_u_stat = self.__load_image("images/shield2.png", int(block_size))
+            self.cross_bomb_u_stat = self.__load_image("images/cross_bomb2.png", int(block_size))
+
 
             self.title = self.__load_titles("images/title.png", block_size, 0.4)
             self.enemy_title = self.__load_titles("images/enemy_title.png", block_size, 0.15)

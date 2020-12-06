@@ -16,7 +16,6 @@ COLUMNS = 14
 
 
 class Board:
-
     # Class constants
     __instance = None
     matrix = Matrix.Matrix.get_instance()
@@ -59,14 +58,13 @@ class Board:
 
             self.images = Image.get_instance(self.BLOCK_SIZE)
 
-
     def draw_base(self, SCREEN):
         """
         Draws the base of the game board as it
         was a matrix fulled with Blanck objects
         """
-        start_x = self.WIDTH/2 - self.BLOCK_SIZE*COLUMNS/2-self.BLOCK_SIZE
-        start_y = self.HEIGHT/2 - self.BLOCK_SIZE*ROWS/2-self.BLOCK_SIZE
+        start_x = self.WIDTH / 2 - self.BLOCK_SIZE * COLUMNS / 2 - self.BLOCK_SIZE
+        start_y = self.HEIGHT / 2 - self.BLOCK_SIZE * ROWS / 2 - self.BLOCK_SIZE
         # Alternates the colors of  the blank spaces
 
         light_grass = True
@@ -75,9 +73,9 @@ class Board:
         x = start_x
         y = start_y
 
-        while y < start_y + self.BLOCK_SIZE*ROWS + 2*self.BLOCK_SIZE:
-            while x < start_x + self.BLOCK_SIZE*COLUMNS + 2*self.BLOCK_SIZE:
-                if x == start_x or x == start_x + self.BLOCK_SIZE*COLUMNS + self.BLOCK_SIZE or y == start_y or y == start_y + self.BLOCK_SIZE*ROWS + self.BLOCK_SIZE:
+        while y < start_y + self.BLOCK_SIZE * ROWS + 2 * self.BLOCK_SIZE:
+            while x < start_x + self.BLOCK_SIZE * COLUMNS + 2 * self.BLOCK_SIZE:
+                if x == start_x or x == start_x + self.BLOCK_SIZE * COLUMNS + self.BLOCK_SIZE or y == start_y or y == start_y + self.BLOCK_SIZE * ROWS + self.BLOCK_SIZE:
                     element = self.images.border
                 else:
                     if light_grass:
@@ -283,46 +281,81 @@ class Board:
 
         self.draw_portraits(screen)
 
-        self.draw_pu_stats(pos_x, start_y, screen, self.matrix.enemy0)
-        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 2 + 1, screen, self.matrix.enemy1)
-        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 4 + 1, screen, self.matrix.enemy2)
-        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 6 + 1, screen, self.matrix.enemy3)
-        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 8 + 1, screen, self.matrix.enemy4)
-        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 10 + 1, screen, self.matrix.enemy5)
-        self.draw_pu_stats(pos_x, start_y + self.BLOCK_SIZE * 12 + 1, screen, self.matrix.enemy6)
+        self.draw_epu_stats(pos_x, start_y, screen, self.matrix.enemy0)
+        self.draw_epu_stats(pos_x, start_y + self.BLOCK_SIZE * 2 + 1, screen, self.matrix.enemy1)
+        self.draw_epu_stats(pos_x, start_y + self.BLOCK_SIZE * 4 + 1, screen, self.matrix.enemy2)
+        self.draw_epu_stats(pos_x, start_y + self.BLOCK_SIZE * 6 + 1, screen, self.matrix.enemy3)
+        self.draw_epu_stats(pos_x, start_y + self.BLOCK_SIZE * 8 + 1, screen, self.matrix.enemy4)
+        self.draw_epu_stats(pos_x, start_y + self.BLOCK_SIZE * 10 + 1, screen, self.matrix.enemy5)
+        self.draw_epu_stats(pos_x, start_y + self.BLOCK_SIZE * 12 + 1, screen, self.matrix.enemy6)
 
+        self.draw_upu_stats(screen, self.matrix.user)
 
     def draw_titles(self, screen):
 
         game_name = self.images.title
         enemy_title = self.images.enemy_title
 
-        screen.blit(enemy_title, (self.WIDTH - 0.95*self.WIDTH, self.HEIGHT - 0.98*self.HEIGHT))
-        screen.blit(game_name, (self.WIDTH/2 - (game_name.get_width()/2), self.HEIGHT - 0.99*self.HEIGHT))
+        screen.blit(enemy_title, (self.WIDTH - 0.95 * self.WIDTH, self.HEIGHT - 0.98 * self.HEIGHT))
+        screen.blit(game_name, (self.WIDTH / 2 - (game_name.get_width() / 2), self.HEIGHT - 0.99 * self.HEIGHT))
 
-    def draw_pu_stats(self, pos_x, pos_y, screen, enemy):
+    def draw_epu_stats(self, pos_x, pos_y, screen, player):
 
         e_portrait_width = self.images.e0_portrait.get_width()
         e_portrait_height = self.images.e0_portrait.get_height()
         pu_stat_width = self.images.cross_bomb_e_stat.get_width()
         pu_stat_height = self.images.cross_bomb_e_stat.get_height()
 
-        if enemy.has_shoe:
-            shoe_stat = self.images.shoe_e_collected
-        else:
-            shoe_stat = self.images.shoe_e_stat
-        if enemy.has_shield:
-            shield_stat = self.images.shield_e_collected
-        else:
-            shield_stat = self.images.shield_e_stat
-        if enemy.has_cross_bomb:
-            cross_bomb_stat = self.images.cross_bomb_e_collected
-        else:
-            cross_bomb_stat = self.images.cross_bomb_e_stat
+        shoe_stat, shield_stat, cross_bomb_stat = self.check_power_up(player)
 
-        screen.blit(shoe_stat, (pos_x, pos_y +10))
-        screen.blit(shield_stat, (pos_x, pos_y + e_portrait_height/2 - pu_stat_height/2))
-        screen.blit(cross_bomb_stat, (pos_x, pos_y + e_portrait_height - pu_stat_height-10))
+        screen.blit(shoe_stat, (pos_x, pos_y + 10))
+        screen.blit(shield_stat, (pos_x, pos_y + e_portrait_height / 2 - pu_stat_height / 2))
+        screen.blit(cross_bomb_stat, (pos_x, pos_y + e_portrait_height - pu_stat_height - 10))
+
+    def draw_upu_stats(self, screen, player):
+
+        u_portrait_height = self.images.user_portrait.get_height()
+        u_portrait_width = self.images.user_portrait.get_width()
+        pos_x = self.WIDTH - 0.18 * self.WIDTH
+        pos_y = self.HEIGHT - 0.9 * self.HEIGHT + + self.BLOCK_SIZE + 2 + u_portrait_height + 10
+
+        shoe_stat, shield_stat, cross_bomb_stat = self.check_power_up(player)
+
+        screen.blit(shoe_stat, (pos_x, pos_y))
+        screen.blit(shield_stat, (pos_x + u_portrait_width/2 - shield_stat.get_width()/2, pos_y))
+        screen.blit(cross_bomb_stat, (pos_x + u_portrait_width - cross_bomb_stat.get_width(), pos_y))
+
+    def check_power_up(self, player):
+
+        if isinstance(player, Enemy):
+            if player.has_shoe:
+                shoe_stat = self.images.shoe_e_collected
+            else:
+                shoe_stat = self.images.shoe_e_stat
+            if player.has_shield:
+                shield_stat = self.images.shield_e_collected
+            else:
+                shield_stat = self.images.shield_e_stat
+            if player.has_cross_bomb:
+                cross_bomb_stat = self.images.cross_bomb_e_collected
+            else:
+                cross_bomb_stat = self.images.cross_bomb_e_stat
+
+        else:
+            if player.has_shoe:
+                shoe_stat = self.images.shoe_u_collected
+            else:
+                shoe_stat = self.images.shoe_u_stat
+            if player.has_shield:
+                shield_stat = self.images.shield_u_collected
+            else:
+                shield_stat = self.images.shield_u_stat
+            if player.has_cross_bomb:
+                cross_bomb_stat = self.images.cross_bomb_u_collected
+            else:
+                cross_bomb_stat = self.images.cross_bomb_u_stat
+
+        return shoe_stat, shield_stat, cross_bomb_stat
 
     def draw_portraits(self, screen):
         pos_x = self.WIDTH - 0.99 * self.WIDTH
