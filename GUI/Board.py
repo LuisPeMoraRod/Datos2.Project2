@@ -63,8 +63,9 @@ class Board:
             self.WIDTH = window_width
             self.HEIGHT = window_heigth
             self.BLOCK_SIZE = int(self.WIDTH / 30)
-
             self.images = Image.get_instance(self.BLOCK_SIZE)
+            self.alive_players = []
+            self.amount_of_alive_players = 8
 
     def draw_base(self, SCREEN):
         """
@@ -210,6 +211,8 @@ class Board:
         Auxiliary method to create power ups every certain
         amount of time in the matrix
         """
+        if self.amount_of_alive_players < 3:
+            return
         power_ups = self.count_power_ups()
         # A power up will be generated after a certain amount of time
         if actual_time - self.last_power_up_time > TIME_BETWEEN_POWER_UPS and power_ups < 3:  # Maximum 3 power ups at the same time
@@ -248,7 +251,6 @@ class Board:
                 if isinstance(self.board_matrix[i][j], PowerUp):
                     counter += 1
         return counter
-
 
     def create_fire(self, position, bomb_owner):
         """
@@ -430,3 +432,17 @@ class Board:
         label = my_font.render(text, 1, (255, 255, 255))
 
         return label
+
+    def check_alive_players(self):
+        """
+        Checks the amount of players that haven't lost yet
+        and save them in a list attribute
+        """
+        alive_players_list = []
+        alive_players_count = 0
+        for player in PlayersList.PlayersList.get_instance().players_list:
+            if player.lives > 0:
+                alive_players_count += 1
+                alive_players_list.append(player)
+        self.amount_of_alive_players = alive_players_count
+        self.alive_players = alive_players_list

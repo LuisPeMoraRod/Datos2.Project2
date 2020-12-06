@@ -51,6 +51,7 @@ class MainWindow:
                     sys.exit()
 
             board.users.update()
+            board.check_alive_players()
             # Random power up creation
             actual_time = pygame.time.get_ticks()
             board.create_power_up(actual_time)
