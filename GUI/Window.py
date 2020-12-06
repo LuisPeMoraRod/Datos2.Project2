@@ -36,7 +36,8 @@ class MainWindow:
         board = Board.get_instance(self.__WIDTH, self.__HEIGHT)
         board.enemies.update()
         genetic_algorithm = GeneticAlgorithm()
-        # board.matrix.enemy0.update()
+        #board.matrix.enemy0.update()
+        #board.matrix.enemy1.update()
 
         while not self.__done:
             screen.blit(self.__bg_image, (0, 0))
@@ -54,4 +55,6 @@ class MainWindow:
             actual_time = pygame.time.get_ticks()
             board.create_power_up(actual_time)
             genetic_algorithm.crossover(actual_time)  # executes crossover
+            board.change_velocity(actual_time)
+            board.change_detonation_time(actual_time)
             pygame.display.flip()

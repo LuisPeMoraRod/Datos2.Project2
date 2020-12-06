@@ -8,10 +8,14 @@ from GUI.Window import *
 from GUI.Image import *
 from Bomb import *
 import pyautogui
+import PlayersList
+import threading
 
 # constants
 
-TIME_BETWEEN_POWER_UPS = 5000
+TIME_BETWEEN_POWER_UPS = 9000
+TIME_BETWEEN_VELOCITY_UPDATE = 3000
+TIME_BETWEEN_DETONATION_UPDATE = 3000
 
 ROWS = 12
 COLUMNS = 14
@@ -54,6 +58,8 @@ class Board:
             self.killed_player_row = 0
             self.killed_player_column = 0
             self.last_power_up_time = pygame.time.get_ticks()
+            self.last_velocity_update = pygame.time.get_ticks()
+            self.last_detonation_time_update = pygame.time.get_ticks()
             self.WIDTH = window_width
             self.HEIGHT = window_heigth
             self.BLOCK_SIZE = int(self.WIDTH / 30)
@@ -222,6 +228,19 @@ class Board:
                 shoe = Shoe(self.matrix)
                 self.matrix.matrix[shoe.get_x()][shoe.get_y()] = shoe
 
+    def change_velocity(self, actual_time):
+        if actual_time - self.last_velocity_update > TIME_BETWEEN_VELOCITY_UPDATE:
+            self.last_velocity_update = actual_time
+            for enemy in PlayersList.PlayersList.get_instance().players_list:
+                if enemy.velocity < 1700:
+                    enemy.velocity += 50
+
+    def change_detonation_time(self, actual_time):
+        if actual_time - self.last_detonation_time_update > TIME_BETWEEN_DETONATION_UPDATE:
+            self.last_detonation_time_update = actual_time
+            if Bomb.TIME_TO_DETONATE >= 1500:
+                Bomb.TIME_TO_DETONATE -= 10
+
     def count_power_ups(self):
         counter = 0
         for i in range(len(self.board_matrix)):
@@ -229,6 +248,7 @@ class Board:
                 if isinstance(self.board_matrix[i][j], PowerUp):
                     counter += 1
         return counter
+
 
     def create_fire(self, position, bomb_owner):
         """
@@ -243,14 +263,11 @@ class Board:
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
                 bomb_owner.kills += 1
-                self.killed_player = element.lose_live("Kill")
+                #element.is_movement_denied = True
                 self.killed_player_row = row
                 self.killed_player_column = column
-                if self.killed_player is None:  # This happens when the player dies
-                    self.board_matrix[row][column] = Fire(position)
-                    return True
-                # When the player is being bombed the movement stops
-                self.killed_player.is_movement_denied = True
+                element.lose_live("Kill")
+                self.killed_player = element
             self.board_matrix[row][column] = Fire(position)
             if isinstance(element, Breakable) or isinstance(element, Bomb):
                 return False
@@ -265,13 +282,14 @@ class Board:
         """
         row = position[0]
         column = position[1]
-        if self.killed_player is None:
-            self.board_matrix[row][column] = Blank((row, column))
-        elif self.killed_player_row == row \
-                and self.killed_player_column == column:
+        if self.killed_player_row == row \
+                and self.killed_player_column == column\
+                and isinstance(self.killed_player, Player.Player)\
+                and self.killed_player.lives > 0:
             self.board_matrix[row][column] = self.killed_player
-            self.killed_player.is_movement_denied = False
             self.killed_player = None
+        else:
+            self.board_matrix[row][column] = Blank((row, column))
 
     def restart_enables(self):
         """
@@ -326,14 +344,15 @@ class Board:
         screen.blit(shield_stat, (pos_x, pos_y + e_portrait_height / 2 - pu_stat_height / 2))
         screen.blit(cross_bomb_stat, (pos_x, pos_y + e_portrait_height - pu_stat_height - 10))
 
-        lb_lives = self.generate_label(int(0.35*self.BLOCK_SIZE), "Lives: " + str(player.lives))
+        lb_lives = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Lives: " + str(player.lives))
         lb_velocity = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Velocity: " + str(player.velocity))
-        lb_explosion_radius = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Bomb radius: " + str(player.explosion_radius))
+        lb_explosion_radius = self.generate_label(int(0.35 * self.BLOCK_SIZE),
+                                                  "Bomb radius: " + str(player.explosion_radius))
         lb_evasion = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Evasion: " + str(player.evasion))
-        screen.blit(lb_lives, (pos_x + pu_stat_width + 10, pos_y +10))
+        screen.blit(lb_lives, (pos_x + pu_stat_width + 10, pos_y + 10))
         screen.blit(lb_velocity, (pos_x + pu_stat_width + 10, pos_y + 10 + 0.35 * self.BLOCK_SIZE))
-        screen.blit(lb_explosion_radius, (pos_x + pu_stat_width + 10, pos_y + 10 + 2*(0.35 * self.BLOCK_SIZE)))
-        screen.blit(lb_evasion, (pos_x + pu_stat_width + 10, pos_y + 10 + 3*(0.35 * self.BLOCK_SIZE)))
+        screen.blit(lb_explosion_radius, (pos_x + pu_stat_width + 10, pos_y + 10 + 2 * (0.35 * self.BLOCK_SIZE)))
+        screen.blit(lb_evasion, (pos_x + pu_stat_width + 10, pos_y + 10 + 3 * (0.35 * self.BLOCK_SIZE)))
 
     def draw_upu_stats(self, screen, player):
 
@@ -344,12 +363,12 @@ class Board:
 
         shoe_stat, shield_stat, cross_bomb_stat = self.check_power_up(player)
 
-        lb_lives = self.generate_label(int(0.5*self.BLOCK_SIZE), "Lives: " + str(player.lives))
+        lb_lives = self.generate_label(int(0.5 * self.BLOCK_SIZE), "Lives: " + str(player.lives))
 
         screen.blit(shoe_stat, (pos_x, pos_y))
         screen.blit(shield_stat, (pos_x + u_portrait_width / 2 - shield_stat.get_width() / 2, pos_y))
         screen.blit(cross_bomb_stat, (pos_x + u_portrait_width - cross_bomb_stat.get_width(), pos_y))
-        screen.blit(lb_lives, (pos_x, pos_y + shoe_stat.get_height()+10))
+        screen.blit(lb_lives, (pos_x, pos_y + shoe_stat.get_height() + 10))
 
     def check_power_up(self, player):
 

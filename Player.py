@@ -18,9 +18,10 @@ import sys
 sys.setrecursionlimit(10**6)
 # Constants
 TIME_BETWEEN_MOVEMENTS = 150
+INITIAL_USER_VELOCITY = 6
 TIME_BETWEEN_BOMBS = 1000
-HIDING_TIME = 0.5
-POWER_UP_SEARCH_TIME = 0.2
+HIDING_TIME = 0.2
+POWER_UP_SEARCH_TIME = 0.1
 LIVES = 3
 
 
@@ -80,10 +81,14 @@ class Player (pygame.sprite.Sprite):
         3) Abort movement -> indicates the player to stop moving
         """
         # Activate  a power up if it follows the movement
+        if self.lives == 0:
+            return ""
         if isinstance(self.matrix[next_pos[0]][next_pos[1]], PowerUp.PowerUp):
             self.matrix[next_pos[0]][next_pos[1]].activate(self)
         # Do the normal movement when the next position is Blank
         if isinstance(self.matrix[next_pos[0]][next_pos[1]], Matrix.Blank):
+            if self.lives == 0:
+                return ""
             self.matrix[next_pos[0]][next_pos[1]] = self
             if self.new_bomb:
                 self.leave_bomb()
@@ -201,9 +206,8 @@ class Player (pygame.sprite.Sprite):
             if not self.has_shield and self.lives > 0:
                 self.lives -= 1
             if self.lives <= 0:
-                self.kill()  # Method from the pygame.Sprite class
-                return None
-            return self
+                return "Killed"
+            return "Alive"
 
 
 class User(Player):
@@ -221,7 +225,7 @@ class User(Player):
         super().__init__(position, matrix)
         # User stats
         self.lives = 3
-        self.velocity = TIME_BETWEEN_MOVEMENTS
+        self.velocity = INITIAL_USER_VELOCITY
         self.explosion_radius = 2
 
     def __str__(self):
@@ -248,7 +252,7 @@ class User(Player):
             self.new_bomb = True
         # Movement control
         actual_time_move = pygame.time.get_ticks()
-        if actual_time_move - self.last_movement_time < self.velocity:
+        if actual_time_move - self.last_movement_time < TIME_BETWEEN_MOVEMENTS:
             return
         if keys[pygame.K_d]:
             self.move_right()
@@ -543,7 +547,7 @@ class Enemy(Player, threading.Thread):
                 return
             if self.is_movement_denied:
                 break
-            time.sleep(1)
+            time.sleep(2.2 - self.velocity/1000)
             message = ""
             if movement == "up":
                 message = self.move_up()

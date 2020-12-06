@@ -75,7 +75,8 @@ class Healing(PowerUp):
         Method that makes the player gain a live
         Theres a maximum live stat that limits this value
         """
-        player.lives += 1
+        if player.lives < 3:
+            player.lives += 1
         pos_i = self.get_x()
         pos_j = self.get_y()
         self.matrix[pos_i][pos_j] = Matrix.Blank((pos_i, pos_j))
