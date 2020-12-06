@@ -243,7 +243,7 @@ class Board:
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
                 bomb_owner.kills += 1
-                self.killed_player = element.lose_live()
+                self.killed_player = element.lose_live("Kill")
                 self.killed_player_row = row
                 self.killed_player_column = column
                 if self.killed_player is None:  # This happens when the player dies

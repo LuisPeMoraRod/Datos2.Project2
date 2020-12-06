@@ -187,17 +187,22 @@ class Player (pygame.sprite.Sprite):
         self.matrix[pos_i][pos_j] = Bomb.Bomb((pos_i, pos_j), self.matrix, self.explosion_radius, self)
         self.has_shoe = False
 
-    def lose_live(self):
+    def lose_live(self,  action):
         """
         Method that makes the player lose a live
         kills the player if he reaches 0 lives
         """
-        if not self.has_shield:
-            self.lives -= 1
-        if self.lives <= 0:
-            self.kill()  # Method from the pygame.Sprite class
-            return None
-        return self
+        if action == "Test":
+            if self.lives == 1:
+                return None
+            return self
+        elif action == "Kill":
+            if not self.has_shield and self.lives > 0:
+                self.lives -= 1
+            if self.lives <= 0:
+                self.kill()  # Method from the pygame.Sprite class
+                return None
+            return self
 
 
 class User(Player):

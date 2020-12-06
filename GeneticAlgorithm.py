@@ -133,7 +133,7 @@ class GeneticAlgorithm:
 
             is_user_alive = True
             user = self.players_list[-1]
-            if user.lose_live() is not None:
+            if user.lose_live("Test") is not None:
                 is_user_alive = False
 
             if is_user_alive:
