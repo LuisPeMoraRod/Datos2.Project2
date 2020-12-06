@@ -6,9 +6,11 @@ import random
 import pygame.time
 from GUI.Window import *
 from GUI.Image import *
+from Bomb import *
 import pyautogui
 
 # constants
+
 TIME_BETWEEN_POWER_UPS = 5000
 
 ROWS = 12
@@ -134,23 +136,25 @@ class Board:
                         elif j is self.matrix.enemy6:
                             element = self.images.enemy6
                     elif isinstance(j, Bomb):
+                        detonated_bomb = self.board_matrix[row][column]
                         # Bombs will have black color
                         element = self.images.bomb
                         # Bomb detonates after a certain amount of time defined in Bomb.py
                         detonate_bomb = j.detonate()
                         if detonate_bomb:
+                            bomb_owner = detonated_bomb.player
                             # This iteration controls the places that will convert into Fire
                             # during an explosion
                             for k in range(1, j.radius):
                                 # j.radius represents the radius of the bomb
                                 if row - k >= 0 and self.enable_up:
-                                    self.enable_up = self.create_fire((j.position[0] - k, column))
+                                    self.enable_up = self.create_fire((j.position[0] - k, column), bomb_owner)
                                 if row + k < ROWS and self.enable_down:
-                                    self.enable_down = self.create_fire((j.position[0] + k, column))
+                                    self.enable_down = self.create_fire((j.position[0] + k, column), bomb_owner)
                                 if column - k >= 0 and self.enable_left:
-                                    self.enable_left = self.create_fire((row, j.position[1] - k))
+                                    self.enable_left = self.create_fire((row, j.position[1] - k), bomb_owner)
                                 if column + k < COLUMNS and self.enable_right:
-                                    self.enable_right = self.create_fire((row, j.position[1] + k))
+                                    self.enable_right = self.create_fire((row, j.position[1] + k), bomb_owner)
                             self.board_matrix[row][column] = Fire((row, column))
                         self.restart_enables()
                     elif isinstance(j, Shoe):
@@ -200,8 +204,9 @@ class Board:
         Auxiliary method to create power ups every certain
         amount of time in the matrix
         """
+        power_ups = self.count_power_ups()
         # A power up will be generated after a certain amount of time
-        if actual_time - self.last_power_up_time > TIME_BETWEEN_POWER_UPS:
+        if actual_time - self.last_power_up_time > TIME_BETWEEN_POWER_UPS and power_ups < 3: # maximum 3 power ups at the same time
             self.last_power_up_time = actual_time
             power_up_number = random.randint(0, 3)  # Random power up
             if power_up_number == 0:
@@ -217,7 +222,15 @@ class Board:
                 shoe = Shoe(self.matrix)
                 self.matrix.matrix[shoe.get_x()][shoe.get_y()] = shoe
 
-    def create_fire(self, position):
+    def count_power_ups(self):
+        counter = 0
+        for i in range(len(self.board_matrix)):
+            for j in range(len(self.board_matrix[i])):
+                if isinstance(self.board_matrix[i][j], PowerUp):
+                    counter += 1
+        return counter
+
+    def create_fire(self, position, bomb_owner):
         """
         Method that creates the fire objects needed in the explosion
         :brief: The fire doesn't destruct bombs nor unbreakable blocks
@@ -229,6 +242,7 @@ class Board:
         element = self.board_matrix[row][column]
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
+                bomb_owner.kills += 1
                 self.killed_player = element.lose_live()
                 self.killed_player_row = row
                 self.killed_player_column = column

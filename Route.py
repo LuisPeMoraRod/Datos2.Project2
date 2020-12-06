@@ -2,9 +2,8 @@ from Block import *
 import Player
 import Matrix
 from PowerUp import PowerUp
-from Bomb import *
 from Fire import Fire
-
+import Bomb
 
 class Route:
 
@@ -93,7 +92,7 @@ class Route:
         i = next_node.i
         j = next_node.j
         position = self.matrix[i][j]
-        if isinstance(position, Breakable) or isinstance(position, Bomb):
+        if isinstance(position, Breakable) or isinstance(position, Bomb.Bomb):
             return 5
         elif isinstance(position, Player.Player):
             return 6

@@ -1,6 +1,7 @@
-import pygame
 from GUI.Board import *
+from GeneticAlgorithm import *
 import pyautogui
+import pygame
 
 screen_width, screen_height = pyautogui.size()
 
@@ -30,9 +31,11 @@ class MainWindow:
 
         pygame.init()
         screen = pygame.display.set_mode((self.__WIDTH, self.__HEIGHT))
+
         pygame.display.set_caption('BomberTEC')
         board = Board.get_instance(self.__WIDTH, self.__HEIGHT)
         board.enemies.update()
+        genetic_algorithm = GeneticAlgorithm()
         # board.matrix.enemy0.update()
 
         while not self.__done:
@@ -50,4 +53,5 @@ class MainWindow:
             # Random power up creation
             actual_time = pygame.time.get_ticks()
             board.create_power_up(actual_time)
+            genetic_algorithm.crossover(actual_time)  # executes crossover
             pygame.display.flip()
