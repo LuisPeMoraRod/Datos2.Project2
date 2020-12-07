@@ -90,7 +90,7 @@ class Player (pygame.sprite.Sprite):
             if self.lives == 0:
                 return ""
             self.matrix[next_pos[0]][next_pos[1]] = self
-            if self.new_bomb:
+            if self.new_bomb and not isinstance(self.matrix[actual_pos[0]][actual_pos[1]], Fire.Fire):
                 self.leave_bomb()
             else:
                 self.matrix[actual_pos[0]][actual_pos[1]] = Matrix.Blank(actual_pos)

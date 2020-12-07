@@ -284,6 +284,9 @@ class Board:
         """
         row = position[0]
         column = position[1]
+        #if isinstance(self.board_matrix[row][column], Bomb):
+        #    self.board_matrix[row][column] = Blank((row, column))
+
         if self.killed_player_row == row \
                 and self.killed_player_column == column\
                 and isinstance(self.killed_player, Player.Player)\
