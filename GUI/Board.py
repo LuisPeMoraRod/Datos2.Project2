@@ -352,7 +352,7 @@ class Board:
         screen.blit(shield_stat, (pos_x, pos_y + e_portrait_height / 2 - pu_stat_height / 2))
         screen.blit(cross_bomb_stat, (pos_x, pos_y + e_portrait_height - pu_stat_height - 10))
 
-        lb_lives = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Lives: " + str(player.lives))
+        lb_lives = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Lifes: " + str(player.lives))
         lb_velocity = self.generate_label(int(0.35 * self.BLOCK_SIZE), "Velocity: " + str(player.velocity))
         lb_explosion_radius = self.generate_label(int(0.35 * self.BLOCK_SIZE),
                                                   "Bomb radius: " + str(player.explosion_radius))
@@ -371,7 +371,7 @@ class Board:
 
         shoe_stat, shield_stat, cross_bomb_stat = self.check_power_up(player)
 
-        lb_lives = self.generate_label(int(0.5 * self.BLOCK_SIZE), "Lives: " + str(player.lives))
+        lb_lives = self.generate_label(int(0.5 * self.BLOCK_SIZE), "Lifes: " + str(player.lives))
 
         screen.blit(shoe_stat, (pos_x, pos_y))
         screen.blit(shield_stat, (pos_x + u_portrait_width / 2 - shield_stat.get_width() / 2, pos_y))
