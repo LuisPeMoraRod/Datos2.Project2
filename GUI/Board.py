@@ -265,7 +265,7 @@ class Board:
         if not isinstance(element, Unbreakable) and not isinstance(element, Bomb):
             if isinstance(element, User) or isinstance(element, Enemy):
                 bomb_owner.kills += 1
-                #element.is_movement_denied = True
+                # element.is_movement_denied = True
                 self.killed_player_row = row
                 self.killed_player_column = column
                 element.lose_live("Kill")
@@ -284,15 +284,18 @@ class Board:
         """
         row = position[0]
         column = position[1]
-        #if isinstance(self.board_matrix[row][column], Bomb):
+        # if isinstance(self.board_matrix[row][column], Bomb):
         #    self.board_matrix[row][column] = Blank((row, column))
 
         if self.killed_player_row == row \
-                and self.killed_player_column == column\
-                and isinstance(self.killed_player, Player.Player)\
-                and self.killed_player.lives > 0:
-            self.board_matrix[row][column] = self.killed_player
-            self.killed_player = None
+                and self.killed_player_column == column:
+            if isinstance(self.killed_player, Player.Player) \
+                    and self.killed_player.lives > 0:
+                if self.killed_player.get_x() == row and self.killed_player.get_y() == column:
+                    self.board_matrix[row][column] = self.killed_player
+                self.killed_player = None
+            else:
+                self.board_matrix[row][column] = Blank((row, column))
         else:
             self.board_matrix[row][column] = Blank((row, column))
 
