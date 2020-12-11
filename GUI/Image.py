@@ -2,6 +2,7 @@ import pygame
 
 
 class Image:
+    """This class is used to upload all the images that are needed in the GUI"""
     __instance = None
 
     @staticmethod

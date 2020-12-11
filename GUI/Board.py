@@ -22,6 +22,7 @@ COLUMNS = 14
 
 
 class Board:
+    """This class draws all the elements that appear in the GUI"""
     # Class constants
     __instance = None
     matrix = Matrix.Matrix.get_instance()
@@ -55,6 +56,7 @@ class Board:
             Board.__instance = self
             self.create_players_group()
             self.killed_player = None
+            self.winner_player = None
             self.killed_player_row = 0
             self.killed_player_column = 0
             self.last_power_up_time = pygame.time.get_ticks()
@@ -66,6 +68,8 @@ class Board:
             self.images = Image.get_instance(self.BLOCK_SIZE)
             self.alive_players = []
             self.amount_of_alive_players = 8
+            self.end_game = False
+            self.timer = 0
 
     def draw_base(self, SCREEN):
         """
@@ -450,5 +454,39 @@ class Board:
             if player.lives > 0:
                 alive_players_count += 1
                 alive_players_list.append(player)
+
         self.amount_of_alive_players = alive_players_count
         self.alive_players = alive_players_list
+
+        if len(self.alive_players) == 1:
+            self.winner_player = self.alive_players[0]
+            self.timer += 1
+            if self.timer == 50:
+                self.end_game = True
+
+    def draw_end_window(self, winner, screen):
+
+        pos_x = self.WIDTH/2 - self.BLOCK_SIZE*2
+        pos_y = self.HEIGHT/2 - self.BLOCK_SIZE*2
+
+        if winner == self.matrix.enemy0:
+            winner_portrait = pygame.transform.scale(self.images.e0_portrait, (self.BLOCK_SIZE*4, self.BLOCK_SIZE*4))
+        elif winner == self.matrix.enemy1:
+            winner_portrait = pygame.transform.scale(self.images.e1_portrait, (self.BLOCK_SIZE*4, self.BLOCK_SIZE*4))
+        elif winner == self.matrix.enemy2:
+            winner_portrait = pygame.transform.scale(self.images.e2_portrait, (self.BLOCK_SIZE*4, self.BLOCK_SIZE*4))
+        elif winner == self.matrix.enemy3:
+            winner_portrait = pygame.transform.scale(self.images.e3_portrait, (self.BLOCK_SIZE*4, self.BLOCK_SIZE*4))
+        elif winner == self.matrix.enemy4:
+            winner_portrait = pygame.transform.scale(self.images.e4_portrait, (self.BLOCK_SIZE*4, self.BLOCK_SIZE*4))
+        elif winner == self.matrix.enemy5:
+            winner_portrait = pygame.transform.scale(self.images.e5_portrait, (self.BLOCK_SIZE*4, self.BLOCK_SIZE*4))
+        elif winner == self.matrix.enemy6:
+            winner_portrait = pygame.transform.scale(self.images.e6_portrait, (self.BLOCK_SIZE*4, self.BLOCK_SIZE*4))
+        elif winner == self.matrix.user:
+            winner_portrait = pygame.transform.scale(self.images.user_portrait, (self.BLOCK_SIZE*4, self.BLOCK_SIZE*4))
+
+        screen.blit(winner_portrait,(pos_x, pos_y))
+
+        winner_label = self.generate_label(self.BLOCK_SIZE, "Winner")
+        screen.blit(winner_label, (self.WIDTH/2-winner_label.get_width()/2, pos_y + self.BLOCK_SIZE*4 + 10))
